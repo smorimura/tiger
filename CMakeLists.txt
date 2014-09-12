@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 2.8)
+project(tiger C)
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -o0 -Wall -W -fprofile-arcs -ftest-coverage")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
+add_executable(sample main.c)
+target_link_libraries(sample gcov)
+enable_testing()
+include(CTest)
+add_test(NAME Sample COMMAND sample)
