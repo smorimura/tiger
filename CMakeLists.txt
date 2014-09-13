@@ -24,7 +24,7 @@ if(TIGER_PROFILING)
 endif()
 
 # A sample application
-add_executable(sample main.c)
+add_executable(sample tiger/main.c)
 
 # Linking to gcov for coverage
 if(TIGER_PROFILING)

@@ -24,3 +24,5 @@
 
 # CMake / Build
 build/
+docs/
+
