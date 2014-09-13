@@ -25,6 +25,7 @@ endif()
 
 # A sample application
 add_executable(sample tiger/main.c)
+install(TARGETS sample DESTINATION bin)
 
 # Linking to gcov for coverage
 if(TIGER_PROFILING)
@@ -37,3 +38,8 @@ if(TIGER_TESTING)
   include(CTest)
   add_test(NAME Sample COMMAND sample)
 endif()
+
+SET(CPACK_GENERATOR "TGZ")
+SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Trent Reed")
+ 
+INCLUDE(CPack)
