@@ -24,5 +24,6 @@
 
 # CMake / Build
 build/
-docs/
 
+# OS-Specific
+*.kate-swp

@@ -39,7 +39,4 @@ if(TIGER_TESTING)
   add_test(NAME Sample COMMAND sample)
 endif()
 
-SET(CPACK_GENERATOR "TGZ")
-SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Trent Reed")
- 
-INCLUDE(CPack)
+configure_file(${CMAKE_SOURCE_DIR}/docs/Doxyfile.in ${CMAKE_BINARY_DIR}/Doxygen @ONLY)
