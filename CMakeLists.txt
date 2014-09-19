@@ -39,4 +39,4 @@ if(TIGER_TESTING)
   add_test(NAME Sample COMMAND sample)
 endif()
 
-configure_file(${CMAKE_SOURCE_DIR}/docs/Doxyfile.in ${CMAKE_BINARY_DIR}/Doxygen @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/docs/Doxyfile.in ${CMAKE_BINARY_DIR}/Doxyfile @ONLY)
