@@ -26,4 +26,6 @@
 build/
 
 # OS-Specific
-*.kate-swp
+*.*swp
+.*
+*.kdev*
