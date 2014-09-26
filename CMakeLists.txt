@@ -40,7 +40,7 @@ install(TARGETS tl DESTINATION bin)
 
 # Linking to gcov for coverage
 if(TIGER_PROFILING)
-  target_link_libraries(sample gcov)
+  target_link_libraries(tl gcov)
 endif()
 
 # Add the test that Tiger relies on
