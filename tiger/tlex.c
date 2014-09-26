@@ -10,7 +10,7 @@ tgClass tgLexer_class = {
   sizeof(tgLexer), &tgNull_ctor, &tgNull_dtor
 };
 
-static int peek = 0;
+static int peek = ' ';
 static int lines = 0;
 static char buffer[4086];
 
@@ -87,8 +87,7 @@ static tgToken* tgTOperator_create(char const* buffer) {
 
 tgToken* tgLexer_scan(tgLexer* lexer, FILE* input) {
   // Skip whitespaces
-  for(;;) {
-    tgLexer_read(input);
+  for(;;tgLexer_read(input)) {
     if(peek == ' ' || peek == '\t') continue;
     else if(peek == '\n') ++lines;
     else break;
@@ -142,6 +141,6 @@ tgToken* tgLexer_scan(tgLexer* lexer, FILE* input) {
   }
 
   // Misc. Characters
-  tgToken *token = tgTTerm_create(peek);
+  tgToken *token = tgTTerm_create(peek); peek = ' ';
   return token;
 }
