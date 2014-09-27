@@ -73,7 +73,7 @@ static tgToken* tgTReal_create(char const* buffer) {
   return (tgToken*)real;
 }
 
-static tgToken* tgTId_create(char const* buffer) {
+tgToken* tgTId_create(char const* buffer) {
   tgTId *id = malloc(sizeof(tgTId));
   id->token.tag = TG_ID;
   id->name = malloc(sizeof(char) * strlen(buffer) + 1);
@@ -134,6 +134,7 @@ tgToken* tgLexer_scan(struct tgEnv_* env, tgLexer* lexer, FILE* input) {
     if(token != NULL) return token;
     mpf_t* mpf = malloc(sizeof(mpf_t));
     mpf_init(*mpf);
+    token = tgTId_create(buffer);
     tgEnv_add(env, (tgTId*)token, mpf);
     return token;
   }

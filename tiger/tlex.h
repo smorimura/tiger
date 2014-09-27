@@ -13,7 +13,7 @@
  * Definitions for the different token values.
  ******************************************************************************/
 typedef enum {
-  TG_ID, TG_REAL, TG_OPERATOR, TG_TERMINAL
+  TG_ID, TG_REAL, TG_OPERATOR, TG_TERMINAL, TG_FUNCTION
 } tgTag;
 
 /*******************************************************************************
@@ -63,5 +63,6 @@ extern tgClass tgLexer_class;
 // Functions associated with tgLexer
 struct tgEnv_;
 tgToken* tgLexer_scan(struct tgEnv_* env, tgLexer* lexer, FILE* input);
+tgToken* tgTId_create(char const* buffer);
 
 #endif // TG_TLEX_H

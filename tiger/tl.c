@@ -6,6 +6,15 @@
 #include <tiger/tparse.h>
 #include <stdio.h>
 #include <error.h>
+#include <stdlib.h>
+
+void tgExit() {
+  exit(0);
+}
+
+void tgHelloC() {
+  printf("Hello, C.\n");
+}
 
 int main(int argc, char const* argv[]) {
   tgLexer *lexer = tgAlloc(tgLexer);
@@ -19,8 +28,18 @@ int main(int argc, char const* argv[]) {
     }
   }
 
-  // Parse and process output.
+  // Generate the starting environment
   tgEnv* env = tgEnv_create(5, NULL);
+
+  // Create functions within Tiger.
+  tgToken* function = tgTId_create("exit");
+  function->tag = TG_FUNCTION;
+  tgEnv_add(env, (tgTId*)function, &tgExit);
+  function =  tgTId_create("callback");
+  function->tag = TG_FUNCTION;
+  tgEnv_add(env, (tgTId*)function, &tgHelloC);
+
+  // Run scripting environment
   tgParser_parse(env, parser, lexer, infile);
 
   tgFree(lexer);

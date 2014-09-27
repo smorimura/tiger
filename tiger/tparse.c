@@ -56,6 +56,20 @@ void tgExpr_div(void*a, void*b) {
   mpf_div(eax, *lhs, *rhs);
 }
 
+static void tgFunc_call(void* a, void* b) {
+  void (*func)() = a;
+  func();
+}
+
+static tgStmt* tgFunc_match(tgEnv* env, tgLexer* lex, FILE* in, tgToken* tok) {
+  tgMove(env, lex, in);
+  tgMatch(env, lex, in, TG_TERMINAL);
+  tgStmt* stmt = malloc(sizeof(tgStmt));
+  stmt->lhs = tgEnv_getSym(env, ((tgTId*)tok)->name)->data;
+  stmt->exec = &tgFunc_call;
+  return stmt;
+}
+
 static tgStmt* tgConst_match(tgEnv* env, tgLexer* lex, FILE* in, tgToken* tok) {
   tgStmt* stmt = malloc(sizeof(tgStmt));
   stmt->lhs = tgEnv_getSym(env, ((tgTId*)tok)->name)->data;
@@ -92,6 +106,18 @@ static tgStmt* tgExpr_match(tgEnv* env, tgLexer* lex, FILE* in, tgToken* tok) {
   return stmt;
 }
 
+static void tgExpr_assign(void* a, void* b) {
+  mpf_set(*(mpf_t*)a, *(mpf_t*)b);
+}
+
+static tgStmt* tgAssign_match(tgEnv* env, tgLexer* lex, FILE* in, tgToken* tok) {
+  tgStmt* stmt = malloc(sizeof(tgStmt));
+  tgToken* op = look; tgMove(env, lex, in);
+  stmt->lhs = tgEnv_getSym(env, ((tgTId*)tok)->name)->data;
+  stmt->rhs = tgEnv_getSym(env, ((tgTId*)look)->name)->data;
+  stmt->exec = &tgExpr_assign;
+}
+
 static tgStmt* tgId_match(tgEnv* env, tgLexer* lex, FILE* in) {
   tgStmt* stmt = NULL;
   tgToken* prev = look;
@@ -100,7 +126,7 @@ static tgStmt* tgId_match(tgEnv* env, tgLexer* lex, FILE* in) {
     case TG_OPERATOR:
       switch (*((tgTId*)look)->name) {
         case '=':
-          //return tgAssign_match(env, lex, in, prev);
+          return tgAssign_match(env, lex, in, prev);
         case '+':
         case '-':
         case '/':
@@ -114,6 +140,8 @@ static tgStmt* tgId_match(tgEnv* env, tgLexer* lex, FILE* in) {
     case TG_TERMINAL:
       if(((tgTTerm*)look)->nonterm == ';') {
         return tgConst_match(env, lex, in, prev);
+      } else if(((tgTTerm*)look)->nonterm == '(') {
+        return tgFunc_match(env, lex, in, prev);
       }
   }
   return NULL;
@@ -149,6 +177,7 @@ void tgParser_parse(tgEnv* env, tgParser* parser, tgLexer* lexer, FILE* infile) 
       case EOF:
         return;
       case ';':
+      case '\n':
         continue;
       default:
         stmt = tgId_match(env, lexer, infile);
