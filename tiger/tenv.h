@@ -9,6 +9,7 @@ typedef struct tgSymbol_ {
   struct tgSymbol_ *next;
   size_t hash;
   tgTId *token;
+  void* data;
 } tgSymbol;
 
 typedef struct tgEnv_ {
@@ -18,7 +19,8 @@ typedef struct tgEnv_ {
 } tgEnv;
 
 tgEnv* tgEnv_create(int size, tgEnv* prev);
+tgSymbol* tgEnv_getSym(tgEnv* env, char const* name);
 tgToken* tgEnv_get(tgEnv* env, char const* name);
-void tgEnv_add(tgEnv* env, tgTId* token);
+void tgEnv_add(tgEnv* env, tgTId* token, void* data);
 
 #endif // TIGER_TENV_H

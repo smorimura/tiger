@@ -2,17 +2,19 @@
 #include <tiger/tenv.h>
 #include <malloc.h>
 
-static tgSymbol* tgSymbol_create(tgTId* token, size_t hash, tgSymbol* next) {
+static tgSymbol* tgSymbol_create(tgTId* token, size_t hash, void* data, tgSymbol* next) {
   tgSymbol* sym = malloc(sizeof(tgSymbol));
   sym->hash = hash;
   sym->next = next;
   sym->token = token;
+  sym->data = data;
 }
 
 static size_t tgEnv_hash(char const* c) {
   size_t hash = 0;
   while(*c) {
     hash = hash * 255 + *c;
+    ++c;
   }
   return hash;
 }
@@ -60,18 +62,22 @@ static tgSymbol* tgEnv_get_(tgEnv* env, char const* name, size_t hash) {
   return NULL;
 }
 
-tgToken* tgEnv_get(tgEnv* env, char const* name) {
+tgSymbol* tgEnv_getSym(tgEnv* env, char const* name) {
   size_t hash = tgEnv_hash(name);
-  tgSymbol* sym = tgEnv_get_(env, name, hash);
+  return tgEnv_get_(env, name, hash);
+}
+
+tgToken* tgEnv_get(tgEnv* env, char const* name) {
+  tgSymbol* sym = tgEnv_getSym(env, name);
 
   if(sym) return (tgToken*)sym->token;
   else return NULL;
 }
 
-void tgEnv_add(tgEnv* env, tgTId* token) {
+void tgEnv_add(tgEnv* env, tgTId* token, void* data) {
   size_t hash = tgEnv_hash(token->name);
   size_t idx = hash % env->size;
   tgSymbol* next = env->symbols[idx];
 
-  env->symbols[idx] = tgSymbol_create(token, hash, next);
+  env->symbols[idx] = tgSymbol_create(token, hash, data, next);
 }

@@ -24,14 +24,6 @@ typedef struct {
 } tgToken;
 
 /*******************************************************************************
- * Type for holding real tokens.
- ******************************************************************************/
-typedef struct {
-  tgToken token;
-  mpf_t value;
-} tgTReal;
-
-/*******************************************************************************
  * Type for holding identifier tokens.
  ******************************************************************************/
 typedef struct {
@@ -40,11 +32,17 @@ typedef struct {
 } tgTId;
 
 /*******************************************************************************
+ * Type for holding real tokens.
+ ******************************************************************************/
+typedef struct {
+  tgTId id;
+} tgTReal;
+
+/*******************************************************************************
  * Type for holding operator tokens.
  ******************************************************************************/
 typedef struct {
-  tgToken token;
-  char *string;
+  tgTId id;
 } tgTOperator;
 
 /*******************************************************************************
@@ -63,6 +61,7 @@ typedef struct {
 extern tgClass tgLexer_class;
 
 // Functions associated with tgLexer
-tgToken* tgLexer_scan(tgLexer* lexer, FILE* input);
+struct tgEnv_;
+tgToken* tgLexer_scan(struct tgEnv_* env, tgLexer* lexer, FILE* input);
 
 #endif // TG_TLEX_H

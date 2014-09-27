@@ -3,8 +3,11 @@
  ******************************************************************************/
 
 #include <tiger/tlex.h>
+#include <tiger/tenv.h>
 #include <string.h>
 #include <malloc.h>
+#include <ctype.h>
+#include <stdio.h>
 
 tgClass tgLexer_class = {
   sizeof(tgLexer), &tgNull_ctor, &tgNull_dtor
@@ -64,8 +67,9 @@ static tgToken* tgTTerm_create(char c) {
 
 static tgToken* tgTReal_create(char const* buffer) {
   tgTReal *real = malloc(sizeof(tgTReal));
-  real->token.tag = TG_REAL;
-  mpf_init_set_str(real->value, buffer, 10);
+  real->id.token.tag = TG_REAL;
+  real->id.name= malloc(sizeof(char) * strlen(buffer) + 1);
+  strcpy(real->id.name, buffer);
   return (tgToken*)real;
 }
 
@@ -79,17 +83,17 @@ static tgToken* tgTId_create(char const* buffer) {
 
 static tgToken* tgTOperator_create(char const* buffer) {
   tgTOperator *id = malloc(sizeof(tgTOperator));
-  id->token.tag = TG_OPERATOR;
-  id->string = malloc(sizeof(char) * strlen(buffer) + 1);
-  strcpy(id->string, buffer);
+  id->id.token.tag = TG_OPERATOR;
+  id->id.name = malloc(sizeof(char) * strlen(buffer) + 1);
+  strcpy(id->id.name, buffer);
   return (tgToken*)id;
 }
 
-tgToken* tgLexer_scan(tgLexer* lexer, FILE* input) {
+tgToken* tgLexer_scan(struct tgEnv_* env, tgLexer* lexer, FILE* input) {
   // Skip whitespaces
   for(;;tgLexer_read(input)) {
-    if(peek == ' ' || peek == '\t') continue;
-    else if(peek == '\n') ++lines;
+    if(peek == '\n') ++lines;
+    else if(peek <= 32 && peek >= 0) continue;
     else break;
   }
 
@@ -108,7 +112,13 @@ tgToken* tgLexer_scan(tgLexer* lexer, FILE* input) {
       ++curr;
     } while(isnum(peek));
     (*curr) = '\0';
-    return tgTReal_create(buffer);
+    tgToken* token = tgEnv_get(env, buffer);
+    if(token != NULL) return token;
+    token = tgTReal_create(buffer);
+    mpf_t* mpf = malloc(sizeof(mpf_t));
+    mpf_init_set_str(*mpf, buffer, 10);
+    tgEnv_add(env, (tgTId*)token, mpf);
+    return token;
   }
 
   // Identifier
@@ -120,10 +130,11 @@ tgToken* tgLexer_scan(tgLexer* lexer, FILE* input) {
       ++curr;
     } while(isalphanum(peek));
     (*curr) = '\0';
-    // tgTId const* token = tgSym_get(buffer);
-    // if(token != NULL) return token;
-    tgToken* token = tgTId_create(buffer);
-    // tgSym_reg(token);
+    tgToken* token = tgEnv_get(env, buffer);
+    if(token != NULL) return token;
+    mpf_t* mpf = malloc(sizeof(mpf_t));
+    mpf_init(*mpf);
+    tgEnv_add(env, (tgTId*)token, mpf);
     return token;
   }
 
@@ -136,7 +147,11 @@ tgToken* tgLexer_scan(tgLexer* lexer, FILE* input) {
       ++curr;
     } while(issymbol(peek));
     (*curr) = '\0';
-    tgToken* token = tgTOperator_create(buffer);
+    tgToken* token = tgEnv_get(env, buffer);
+    if(token != NULL) return token;
+    token = tgTId_create(buffer);
+    token->tag = TG_OPERATOR;
+    tgEnv_add(env, (tgTId*)token, NULL);
     return token;
   }
 

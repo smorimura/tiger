@@ -7,12 +7,14 @@
 
 #include <tiger/talloc.h>
 #include <tiger/tlex.h>
+#include <tiger/tenv.h>
 
 typedef struct {
 } tgParser;
 
 extern tgClass tgParser_class;
+extern mpf_t eax;
 
-void tgParser_parse(tgParser* parser, tgLexer* lexer, FILE* infile);
+void tgParser_parse(tgEnv* env, tgParser* parser, tgLexer* lexer, FILE* infile);
 
 #endif // TG_TPARSE_H
