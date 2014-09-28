@@ -5,6 +5,7 @@
 
 tgToken* look = NULL;
 int error = 0;
+int didset = 0;
 
 static void tgMove(tgEnv* env, tgLexer* lex, FILE* infile) {
   look = tgLexer_scan(env, lex, infile);
@@ -57,6 +58,7 @@ void tgExpr_div(void*a, void*b) {
 }
 
 static void tgFunc_call(void* a, void* b) {
+  didset = 1;
   void (*func)() = a;
   func();
 }
@@ -70,10 +72,14 @@ static tgStmt* tgFunc_match(tgEnv* env, tgLexer* lex, FILE* in, tgToken* tok) {
   return stmt;
 }
 
+static void tgEnv_set(void*a, void*b) {
+  mpf_set(eax, *(mpf_t*)a);
+}
+
 static tgStmt* tgConst_match(tgEnv* env, tgLexer* lex, FILE* in, tgToken* tok) {
   tgStmt* stmt = malloc(sizeof(tgStmt));
   stmt->lhs = tgEnv_getSym(env, ((tgTId*)tok)->name)->data;
-  stmt->exec = &tgConst_print;
+  stmt->exec = &tgEnv_set;
   return stmt;
 }
 
@@ -83,55 +89,104 @@ static tgStmt* tgPrint_create() {
   stmt->exec = &tgConst_print;
 }
 
-static tgStmt* tgExpr_match(tgEnv* env, tgLexer* lex, FILE* in, tgToken* tok) {
-  tgStmt* stmt = malloc(sizeof(tgStmt));
-  tgToken* op = look; tgMove(env, lex, in);
-  stmt->lhs = tgEnv_getSym(env, ((tgTId*)tok)->name)->data;
-  stmt->rhs = tgEnv_getSym(env, ((tgTId*)look)->name)->data;
-  switch (*((tgTId*)op)->name) {
-    case '+':
-      stmt->exec = &tgExpr_add;
-      break;
-    case '-':
-      stmt->exec = &tgExpr_sub;
-      break;
-    case '/':
-      stmt->exec = &tgExpr_div;
-      break;
-    case '*':
-      stmt->exec = &tgExpr_mul;
-      break;
-  }
-  stmt->next = tgPrint_create();
-  return stmt;
-}
-
-static void tgExpr_assign(void* a, void* b) {
+static void tgExpr_set(void* a, void* b) {
+  didset = 1;
   mpf_set(*(mpf_t*)a, *(mpf_t*)b);
 }
 
-static tgStmt* tgAssign_match(tgEnv* env, tgLexer* lex, FILE* in, tgToken* tok) {
-  tgStmt* stmt = malloc(sizeof(tgStmt));
+typedef struct {
+  tgStmt stmt;
+  int pres;
+} tgExpr;
+
+static tgExpr* tgExpr_match(tgEnv* env, tgLexer* lex, FILE* in, tgToken* tok, tgExpr** last) {
+  tgExpr* stmt = malloc(sizeof(tgExpr));
+  tgExpr* stmt2 = NULL;
+  tgExpr* final = stmt;
   tgToken* op = look; tgMove(env, lex, in);
-  stmt->lhs = tgEnv_getSym(env, ((tgTId*)tok)->name)->data;
-  stmt->rhs = tgEnv_getSym(env, ((tgTId*)look)->name)->data;
-  stmt->exec = &tgExpr_assign;
+  stmt->stmt.lhs = tgEnv_getSym(env, ((tgTId*)tok)->name)->data;
+  stmt->stmt.rhs = tgEnv_getSym(env, ((tgTId*)look)->name)->data;
+  switch (*((tgTId*)op)->name) {
+    case '+':
+      stmt->pres = 0;
+      stmt->stmt.exec = &tgExpr_add;
+      break;
+    case '-':
+      stmt->pres = 0;
+      stmt->stmt.exec = &tgExpr_sub;
+      break;
+    case '/':
+      stmt->pres = 1;
+      stmt->stmt.exec = &tgExpr_div;
+      break;
+    case '*':
+      stmt->pres = 1;
+      stmt->stmt.exec = &tgExpr_mul;
+      break;
+    case '=':
+      stmt->pres = 2;
+      stmt->stmt.exec = &tgExpr_set;
+      break;
+  }
+  if(last) *last = NULL;
+
+  // See if this is a more complex expression.
+  tgToken* stmtr = look;
+  tgMove(env, lex, in);
+  if (look->tag == TG_OPERATOR) {
+    switch(*((tgTId*)look)->name) {
+      case '+':
+      case '=':
+      case '-':
+      case '/':
+      case '*': {
+        tgExpr* parent = NULL;
+        tgExpr* leftof = NULL;
+        stmt2 = tgExpr_match(env, lex, in, stmtr, &parent);
+        if(parent) leftof = parent->stmt.next; else leftof = stmt2;
+        if (stmt2) {
+          if (stmt->pres >= leftof->pres) {
+            if(!parent) {
+              final = stmt;
+              final->stmt.next = stmt2;
+              stmt2->stmt.lhs = eax;
+            } else {
+              stmt->stmt.next = leftof;
+              parent->stmt.next = stmt;
+              if(last) *last = parent;
+              stmt->stmt.rhs = eax;
+            }
+          } else {
+            final = stmt2;
+            while(leftof->stmt.next) leftof = leftof->stmt.next;
+            leftof->stmt.next = stmt;
+            stmt->stmt.rhs = eax;
+          }
+        }
+      }
+        break;
+      default:
+        break;
+    }
+  }
+  return final;
 }
 
-static tgStmt* tgId_match(tgEnv* env, tgLexer* lex, FILE* in) {
+static tgStmt* tgStmt_match(tgEnv* env, tgLexer* lex, FILE* in) {
   tgStmt* stmt = NULL;
   tgToken* prev = look;
+
+  // Peek at the next token to see stmt/expr
   tgMove(env, lex, in);
   switch (look->tag) {
     case TG_OPERATOR:
       switch (*((tgTId*)look)->name) {
         case '=':
-          return tgAssign_match(env, lex, in, prev);
         case '+':
         case '-':
         case '/':
         case '*':
-          stmt = tgExpr_match(env, lex, in, prev);
+          stmt = (tgStmt*)tgExpr_match(env, lex, in, prev, NULL);
           return stmt;
         default:
           //error(1, 3, "Invalid Format!");
@@ -143,20 +198,6 @@ static tgStmt* tgId_match(tgEnv* env, tgLexer* lex, FILE* in) {
       } else if(((tgTTerm*)look)->nonterm == '(') {
         return tgFunc_match(env, lex, in, prev);
       }
-  }
-  return NULL;
-}
-
-static tgStmt* tgStmt_match(tgEnv* env, tgLexer* lex, FILE* in) {
-  for(;;) {
-    switch (look->tag) {
-      case TG_ID:
-        //return tgSet_match(env, lex, in);
-      case TG_REAL:
-        //return tgConst_match(env, lex, in);
-      default:
-        return NULL;
-    }
   }
   return NULL;
 }
@@ -180,8 +221,12 @@ void tgParser_parse(tgEnv* env, tgParser* parser, tgLexer* lexer, FILE* infile) 
       case '\n':
         continue;
       default:
-        stmt = tgId_match(env, lexer, infile);
+        didset = 0;
+        stmt = tgStmt_match(env, lexer, infile);
         if (stmt) tgStmt_exec(stmt);
+        if (!didset) {
+          gmp_printf("%.Ff\n", eax);
+        }
         break;
     }
   }
