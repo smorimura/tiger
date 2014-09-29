@@ -213,7 +213,8 @@ void tgParser_parse(tgEnv* env, tgParser* parser, tgLexer* lexer, FILE* infile) 
   tgStmt* stmt;
   mpf_init(eax);
   for(;;) {
-  tgMove(env, lexer, infile);
+    if(infile == stdin) printf("> ");
+    tgMove(env, lexer, infile);
     switch(((tgTTerm*)look)->nonterm) {
       case EOF:
         return;
