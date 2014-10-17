@@ -2,30 +2,33 @@
  * TigerScript - All content 2014 Trent Reed, all rights reserved.
  ******************************************************************************/
 
-#ifndef   TG_TLEX_H
-#define   TG_TLEX_H
+#ifndef   TIGER_TSTATE_H
+#define   TIGER_TSTATE_H
 
 /*******************************************************************************
- * Definitions for the different token values.
- ******************************************************************************/
-enum tgTag_ {
-  TG_UNDEFINED, TG_TAG, TG_ID, TG_REAL, TG_OPERATOR, TG_TERMINAL, TG_FUNCTION
-};
-typedef enum tgTag_ tgTag;
-
-/*******************************************************************************
- * The structure for the lexical analyzer
- ******************************************************************************/
-struct tgLexer_ {
-};
-typedef struct tgLexer_ tgLexer;
-
-/*******************************************************************************
- * tgLexer Public Methods
+ * Forward Declarations
  ******************************************************************************/
 struct tgEnv_;
+struct tgParser_;
+struct tgLexer_;
 
-tgLexer* tgLexer_alloc();
-void tgLexer_free(tgLexer* lex);
+/*******************************************************************************
+ * State Declaration
+ ******************************************************************************/
+struct tgState_ {
+  struct tgEnv_ *env;
+  struct tgParser_ *parser;
+  struct tgLexer_ *lexer;
+};
+typedef struct tgState_ tgState;
+typedef int(*tgCallback)(tgState*);
 
-#endif // TG_TLEX_H
+/*******************************************************************************
+ * State Methods
+ ******************************************************************************/
+tgState* tgState_alloc();
+int tgState_addCFunc(tgState* T, const char* fname, tgCallback func);
+void tgState_execStr(tgState* T, char const* str);
+void tgState_free(tgState* T);
+
+#endif // TIGER_TSTATE_H

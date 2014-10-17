@@ -31,6 +31,7 @@ endif()
 add_executable(tl
   tiger/tl.c
   tiger/talloc.c
+  tiger/tstate.c
   tiger/tlex.c
   tiger/tparse.c
   tiger/tenv.c

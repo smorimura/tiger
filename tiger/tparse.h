@@ -5,16 +5,18 @@
 #ifndef   TG_TPARSE_H
 #define   TG_TPARSE_H
 
-#include <tiger/talloc.h>
-#include <tiger/tlex.h>
-#include <tiger/tenv.h>
+/*******************************************************************************
+ * The Parser Declaration
+ ******************************************************************************/
+struct tgParser_ {
+};
+typedef struct tgParser_ tgParser;
 
-typedef struct {
-} tgParser;
+/*******************************************************************************
+ * Parser Public Methods
+ ******************************************************************************/
 
-extern tgClass tgParser_class;
-extern mpf_t eax;
-
-void tgParser_parse(tgEnv* env, tgParser* parser, tgLexer* lexer, FILE* infile);
+tgParser* tgParser_alloc();
+void tgParser_free(tgParser* parser);
 
 #endif // TG_TPARSE_H

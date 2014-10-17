@@ -1,3 +1,6 @@
+/*******************************************************************************
+ * TigerScript - All content 2014 Trent Reed, all rights reserved.
+ ******************************************************************************/
 
 #ifndef   TIGER_TENV_H
 #define   TIGER_TENV_H
@@ -5,22 +8,29 @@
 #include <stddef.h>
 #include <tiger/tlex.h>
 
-typedef struct tgSymbol_ {
-  struct tgSymbol_ *next;
-  size_t hash;
-  tgTId *token;
-  void* data;
-} tgSymbol;
+/*******************************************************************************
+ * Symbol Structure
+ ******************************************************************************/
 
-typedef struct tgEnv_ {
-  int size;
-  struct tgEnv_ *pEnv;
-  tgSymbol **symbols;
-} tgEnv;
+/**
+ * @brief A registered symbol which can be found via tgEnv lookup.
+ */
+struct tgSymbol_ {
+  char const *name;
+  void *data;
+  tgTag tag;
+};
+typedef struct tgSymbol_ tgSymbol;
 
-tgEnv* tgEnv_create(int size, tgEnv* prev);
+/*******************************************************************************
+ * Environment Methods
+ ******************************************************************************/
+typedef struct tgEnv_ tgEnv;
+
+tgEnv* tgEnv_alloc(int size, tgEnv* prev);
+tgSymbol* tgEnv_newSym(tgEnv* env, char const* name);
 tgSymbol* tgEnv_getSym(tgEnv* env, char const* name);
-tgToken* tgEnv_get(tgEnv* env, char const* name);
-void tgEnv_add(tgEnv* env, tgTId* token, void* data);
+tgSymbol* tgEnv_getLocalSym(tgEnv* env, char const* name);
+void tgEnv_free(tgEnv* env);
 
 #endif // TIGER_TENV_H

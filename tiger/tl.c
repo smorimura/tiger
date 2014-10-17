@@ -2,47 +2,50 @@
  * TigerScript - All content 2014 Trent Reed, all rights reserved.
  ******************************************************************************/
 
-#include <tiger/tlex.h>
-#include <tiger/tparse.h>
+#include <tiger/tiger.h>
 #include <stdio.h>
-#include <error.h>
-#include <stdlib.h>
+#include <err.h>
 
-void tgExit() {
-  exit(0);
+static int exit = 0;
+
+int help(tgState* T) {
+  printf("Under Construction\n");
+  return 0;
 }
 
-void tgHelloC() {
-  printf("Hello, C.\n");
+int quit(tgState* T) {
+  exit = 1;
+  return 0;
 }
 
 int main(int argc, char const* argv[]) {
-  tgLexer *lexer = tgAlloc(tgLexer);
-  tgParser*parser= tgAlloc(tgParser);
 
+  // Create and initialize TigerScript
+  tgState *T = tgState_alloc();
+
+  // Add helper functions for the end-user
+  tgState_addCFunc(T, "help", &help);
+  tgState_addCFunc(T, "quit", &quit);
+
+  // Select source to parse input from
   FILE* infile = stdin;
   if (argc > 1) {
     infile = fopen(argv[1], "rw");
     if (infile == NULL) {
-      error(1, 1, "Could not open the script provided.");
+      err(1, "Could not open the script provided.");
     }
   }
 
-  // Generate the starting environment
-  tgEnv* env = tgEnv_create(5, NULL);
+  // Process input
+  char inbuff[4096];
+  while (!feof(infile)) {
+    printf("< ");
+    fgets(inbuff, sizeof(inbuff), infile);
+    tgState_execStr(T, inbuff);
+  }
 
-  // Create functions within Tiger.
-  tgToken* function = tgTId_create("exit");
-  function->tag = TG_FUNCTION;
-  tgEnv_add(env, (tgTId*)function, &tgExit);
-  function =  tgTId_create("callback");
-  function->tag = TG_FUNCTION;
-  tgEnv_add(env, (tgTId*)function, &tgHelloC);
+  // Clean up TigerScript
+  tgState_free(T);
 
-  // Run scripting environment
-  tgParser_parse(env, parser, lexer, infile);
-
-  tgFree(lexer);
-  tgFree(parser);
   return 0;
 }

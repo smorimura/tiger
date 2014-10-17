@@ -2,14 +2,9 @@
  * TigerScript - All content 2014 Trent Reed, all rights reserved.
  ******************************************************************************/
 
-#include <tiger/tparse.h>
-#include <malloc.h>
+#ifndef   TIGER_TIGER_H
+#define   TIGER_TIGER_H
 
-tgParser* tgParser_alloc() {
-  tgParser* parser = malloc(sizeof(tgParser));
-  return parser;
-}
+#include <tiger/tstate.h>
 
-void tgParser_free(tgParser* parser) {
-  free(parser);
-}
+#endif // TIGER_TIGER_H
