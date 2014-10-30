@@ -3,6 +3,7 @@
  ******************************************************************************/
 
 #include <tiger/tenv.h>
+#include <tiger/talloc.h>
 #include <malloc.h>
 #include <string.h>
 
@@ -38,14 +39,14 @@ typedef struct tgEnv_ tgEnv;
  * @return A tgEnvSym that may be concatenated with an existing symbol list.
  */
 
-static tgEnvSym* tgEnvSym_alloc(char const* name, size_t namelen, size_t hash) {
-  tgEnvSym* sym = malloc(sizeof(tgEnvSym));
+static tgEnvSym* tgEnvSym_alloc(tgState* T, char const* name, size_t namelen, size_t hash) {
+  tgEnvSym* sym = tgAlloc(sizeof(tgEnvSym));
 
   sym->hash = hash;
   sym->next = NULL;
   sym->sym.data = NULL;
   sym->sym.name = malloc(namelen + 1);
-  sym->sym.tag = TG_UNDEFINED;
+  sym->sym.tag = TG_ERROR;
 
   strcpy((char*)sym->sym.name, name);
 
@@ -144,12 +145,12 @@ static tgEnvSym* tgEnv_getSym_(tgEnv* env, char const* name, size_t hash) {
  * @param prev A pointer to the parent tgEnv (may be NULL for no parent).
  * @return An instance of tgEnv which is nested within \p prev.
  */
-tgEnv* tgEnv_alloc(int size, tgEnv* prev) {
-  tgEnv* env = malloc(sizeof(tgEnv));
+tgEnv* tgEnv_alloc(tgState* T, int size, tgEnv* prev) {
+  tgEnv* env = tgAlloc(sizeof(tgEnv));
 
   env->size = size;
   env->pEnv = prev;
-  env->symbols = calloc(size, sizeof(tgEnvSym*));
+  env->symbols = tgAlloc(size * sizeof(tgEnvSym*));
 
   return env;
 }
@@ -161,7 +162,7 @@ tgEnv* tgEnv_alloc(int size, tgEnv* prev) {
  * @param name The name of the symbol - used for lookup table.
  * @return The newly constructed symbol.
  */
-tgSymbol* tgEnv_newSym(tgEnv* env, const char* name) {
+tgSymbol* tgEnv_newSym(tgState* T, tgEnv* env, const char* name) {
   size_t symlen = 0;
   size_t hash = tgEnv_hash_(name, &symlen);
   size_t idx = hash % env->size;
@@ -170,7 +171,7 @@ tgSymbol* tgEnv_newSym(tgEnv* env, const char* name) {
   if (symbol) return NULL;
 
   // Symbol does not exist, create it
-  symbol = tgEnvSym_alloc(name, symlen, hash);
+  symbol = tgEnvSym_alloc(T, name, symlen, hash);
   symbol->next = env->symbols[idx];
   env->symbols[idx] = symbol;
 

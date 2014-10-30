@@ -1,0 +1,12 @@
+#!/bin/tgr
+
+// Global Values
+value := 0;
+
+// Test the values
+if (value == 0)
+  say("The value is a 0!");
+else if (value == 1)
+  say("The value is a 1!");
+else
+  say("Computers can’t understand that! Beep Boop!");

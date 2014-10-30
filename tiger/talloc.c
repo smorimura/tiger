@@ -3,30 +3,27 @@
  ******************************************************************************/
 
 #include <tiger/talloc.h>
+#include <tiger/tstate.h>
 #include <malloc.h>
 
-void* tgMalloc(tgClass const* tclass, size_t bytes) {
-  bytes += sizeof(tgClass*);
-  void* ptr = malloc(bytes);
-  *((tgClass const**)ptr) = tclass;
-  return ptr + sizeof(tgClass*);
+void* tgMalloc(void* ud, void* ptr, size_t req) {
+  (void)ud;
+  return realloc(ptr, req);
 }
 
-void* tgAlloc_(tgClass const* tclass) {
-  void* inst = tgMalloc(tclass, tclass->size);
-  return tclass->ctor(inst);
+// Memory allocation routines
+void* tgAlloc_(tgState* T, size_t s) {
+  return T->allocator(T->allocatorData, NULL, s);
 }
 
-void  tgFree(void* inst) {
-  tgClass const* tclass = *(tgClass const**)(inst - sizeof(tgClass*));
-  tclass->dtor(inst);
-  free(inst - sizeof(tgClass*));
+void* tgAllocChk_(tgState* T, size_t s, char const* file, size_t line) {
+  return tgAlloc_(T, s);
 }
 
-void *tgNull_ctor(void* self) {
-  return self;
+void  tgFree_(tgState* T, void* ptr) {
+  (void)T->allocator(T->allocatorData, ptr, 0);
 }
 
-void  tgNull_dtor(void* self) {
-  (void)self;
+void  tgFreeChk_(tgState* T, void* ptr, char const* file, size_t line) {
+  tgFree_(T, ptr);
 }

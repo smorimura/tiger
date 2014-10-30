@@ -10,12 +10,8 @@
 ################################################################################
 
 cmake_minimum_required(VERSION 2.8)
-
 project(tiger C)
-
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-find_package(GMP REQUIRED)
 
 # Options for configuring Tiger
 option(TIGER_PROFILING "Whether or not debug mode will be profiled." OFF)
@@ -27,17 +23,27 @@ if(TIGER_PROFILING)
   set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
 endif()
 
-# Add a tiger language compiler
-add_executable(tl
-  tiger/tl.c
+# Add a Tiger Library
+add_library(tiger
+  tiger/topt.c
   tiger/talloc.c
-  tiger/tstate.c
+  tiger/tbuffer.c
+  tiger/tcode.c
+  tiger/tenv.c
   tiger/tlex.c
   tiger/tparse.c
-  tiger/tenv.c
+  tiger/tstate.c
 )
-target_link_libraries(tl ${GMP_LIBRARIES})
-install(TARGETS tl DESTINATION bin)
+
+# Add Tiger Compiler
+add_executable(tc tiger/tc.c)
+target_link_libraries(tc tiger)
+install(TARGETS tc DESTINATION bin)
+
+# Add Tiger Interpreter
+# add_executable(tl tiger/tl.c)
+# target_link_libraries(tl tiger)
+# install(TARGETS tl DESTINATION bin)
 
 # Linking to gcov for coverage
 if(TIGER_PROFILING)

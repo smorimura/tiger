@@ -5,21 +5,26 @@
 #ifndef   TG_TALLOC_H
 #define   TG_TALLOC_H
 
-#include <stddef.h>
+#include <stddef.h> /* size_t */
+#include <tiger/fwdtiger.h> /* tgState */
 
-typedef struct {
-  size_t size;
-  void* (*ctor)(void*);
-  void  (*dtor)(void*);
-} tgClass;
+typedef void* (*tgAllocator)(void*,void*,size_t);
 
-void* tgMalloc(const tgClass* tclass, size_t bytes);
-void* tgAlloc_(const tgClass* tclass);
-void  tgFree(void* inst);
+// Default memory allocator (malloc/realloc/free)
+void* tgMalloc(void* ud, void* ptr, size_t req);
 
-void *tgNull_ctor(void*);
-void  tgNull_dtor(void*);
+// Memory allocation routines
+void* tgAlloc_(tgState* T, size_t s);
+void* tgAllocChk_(tgState* T, size_t s, char const* file, size_t line);
+void  tgFree_(tgState* T, void* ptr);
+void  tgFreeChk_(tgState* T, void* ptr, char const* file, size_t line);
 
-#define tgAlloc(class) (class*)tgAlloc_((tgClass const*)&class##_class)
+#ifdef TIGER_MEMCHECK
+# define tgAlloc(s) tgAllocChk_(T, s, __FILE__, __LINE__)
+# define tgFree(obj) tgFreeChk_(T, obj, __FILE__, __LINE__)
+#else
+# define tgAlloc(s) tgAlloc_(T, s)
+# define tgFree(obj) tgFree_(T, obj)
+#endif
 
 #endif // TG_TALLOC_H

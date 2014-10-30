@@ -6,6 +6,7 @@
 #define   TIGER_TENV_H
 
 #include <stddef.h>
+#include <tiger/fwdtiger.h> /* tgState */
 #include <tiger/tlex.h>
 
 /*******************************************************************************
@@ -27,8 +28,8 @@ typedef struct tgSymbol_ tgSymbol;
  ******************************************************************************/
 typedef struct tgEnv_ tgEnv;
 
-tgEnv* tgEnv_alloc(int size, tgEnv* prev);
-tgSymbol* tgEnv_newSym(tgEnv* env, char const* name);
+tgEnv* tgEnv_alloc(tgState* T, int size, tgEnv* prev);
+tgSymbol* tgEnv_newSym(tgState* T, tgEnv* env, const char* name);
 tgSymbol* tgEnv_getSym(tgEnv* env, char const* name);
 tgSymbol* tgEnv_getLocalSym(tgEnv* env, char const* name);
 void tgEnv_free(tgEnv* env);
