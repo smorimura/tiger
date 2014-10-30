@@ -71,7 +71,7 @@ int say(tgState* T) {
 
 int printInt(tgState* T) {
   tgInteger i = tgState_pop(T)->data.integer;
-  printf("%d\n", i);
+  printf("%d", i);
   return 0;
 }
 

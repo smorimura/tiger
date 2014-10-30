@@ -1,14 +1,7 @@
 #!/bin/tgr
 
 // Global Values
-value := 0;
-
-// Increment value to 10
-while (value < 10)
-  value = value + 1;
-
-// Print the final value.
-printInt(value);
+value := 2;
 
 // Test the values
 if (value == 0)
@@ -17,3 +10,15 @@ else if (value == 1)
   say("The value is a 1!");
 else
   say("Computers can’t understand that! Beep Boop!");
+
+bottles := 99;
+while (bottles > 0) {
+  printInt(bottles);
+  say(" bottles of beer on the wall,");
+  printInt(bottles);
+  say(" bottles of beer.");
+  bottles = bottles - 1;
+  say("Take one down, pass it around,");
+  printInt(bottles);
+  say(" bottles of beer on the wall.");
+}

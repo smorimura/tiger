@@ -330,6 +330,10 @@ tgTag tgLexer_parse_(tgLexer* lex) {
         return tgLexer_mul(lex);
       case ':':
         return tgLexer_declaration(lex);
+      case '{':
+        return TG_LCURLEY;
+      case '}':
+        return TG_RCURLEY;
       case ';':
         return TG_ENDSTMT;
       case '(':

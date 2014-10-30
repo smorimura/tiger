@@ -14,7 +14,7 @@
  * Definitions for the different token values.
  ******************************************************************************/
 enum tgTag_ {
-  TG_ERROR, TG_EOF, TG_ENDSTMT, TG_LPARENS, TG_RPARENS,
+  TG_ERROR, TG_EOF, TG_ENDSTMT, TG_LPARENS, TG_RPARENS, TG_LCURLEY, TG_RCURLEY,
   // Raw Types
   TG_NOP, TG_IDENTIFIER, TG_CFUNCTION,
   // Branching/Looping

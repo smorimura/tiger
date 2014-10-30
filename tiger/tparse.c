@@ -162,19 +162,23 @@ static void tgParser_stmtBody(tgParser* p) {
       assert(0);
       break;
   }
+  tgLexer_parse(p); // Eat ;
 }
 
 static void tgParser_if(tgParser* p);
 static void tgParser_while(tgParser* p);
+static void tgParser_scoped(tgParser* p);
 
 static void tgParser_stmt(tgParser* p) {
-  tgLexer_parse(p);
   switch (tgTag(p)) {
     case TG_IF:
       tgParser_if(p);
       break;
     case TG_WHILE:
       tgParser_while(p);
+      break;
+    case TG_LCURLEY:
+      tgParser_scoped(p);
       break;
     default:
       tgParser_stmtBody(p);
@@ -184,15 +188,23 @@ static void tgParser_stmt(tgParser* p) {
   }
 }
 
+static void tgParser_scoped(tgParser* p) {
+  tgLexer_parse(p);
+  while (tgTag(p) != TG_RCURLEY) {
+    tgParser_stmt(p);
+  }
+  tgLexer_parse(p);
+}
+
 static void tgParser_while(tgParser* p) {
   tgLexer_expect(p, TG_LPARENS);
   tgLexer_parse(p);
   size_t preexpr = p->code->curr - p->code->begin;
   tgParser_expr(p,0);
+  tgLexer_parse(p);
   tgCode_jif(p->code);
   size_t joff = p->code->curr - p->code->begin;
   tgParser_stmt(p);
-  //tgLexer_parse(p);
   tgCode_rjmp(p->code);
   size_t eoff = p->code->curr - p->code->begin;
   p->code->begin[joff - 1] = eoff - joff;
@@ -203,17 +215,17 @@ static void tgParser_if(tgParser* p) {
   tgLexer_expect(p, TG_LPARENS);
   tgLexer_parse(p);
   tgParser_expr(p,0);
+  tgLexer_parse(p);
   tgCode_jif(p->code);
   size_t joff = p->code->curr - p->code->begin;
-  //tgLexer_expect(p->lexer, TG_RPARENS);
   tgParser_stmt(p);
-  tgLexer_parse(p);
   if (tgTag(p) == TG_ELSE)
     tgCode_jmp(p->code);
   size_t eoff = p->code->curr - p->code->begin;
   size_t jump = eoff - joff;
   p->code->begin[joff - 1] = jump;
   if (tgTag(p) == TG_ELSE) {
+    tgLexer_parse(p);
     tgParser_stmt(p);
     tgLexer_parse(p);
     size_t eelse = p->code->curr - p->code->begin;
@@ -229,5 +241,6 @@ static void tgParser_scope(tgParser* p) {
 }
 
 void tgParser_parse(tgParser* parser) {
+  tgLexer_parse(parser);
   tgParser_scope(parser);
 }
