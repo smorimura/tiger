@@ -11,7 +11,7 @@ union tgData_ {
   tgInteger integer;
   tgReal real;
   tgString string;
-  void* data;
+  void* pointer;
 };
 typedef union tgData_ tgData;
 

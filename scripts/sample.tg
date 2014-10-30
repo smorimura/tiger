@@ -3,6 +3,13 @@
 // Global Values
 value := 0;
 
+// Increment value to 10
+while (value < 10)
+  value = value + 1;
+
+// Print the final value.
+printInt(value);
+
 // Test the values
 if (value == 0)
   say("The value is a 0!");

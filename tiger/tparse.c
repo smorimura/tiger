@@ -29,6 +29,9 @@ static void tgParser_load(tgParser* p) {
       break;
     case TG_IDENTIFIER:
       off = tgCode_defSym(p->code, tgAttrib(p).string);
+      tgCode_writeA(p->code, TB_PUSH, off);
+      tgLexer_parse(p);
+      return;
       break;
     case TG_STRING:
       off = tgCode_defStr(p->code, tgAttrib(p).string);
@@ -74,6 +77,18 @@ static void tgParser_writeOp(tgParser* p, tgTag op) {
     case TG_EQ:
       c = TB_EQ;
       break;
+    case TG_LE:
+      c = TB_LE;
+      break;
+    case TG_LT:
+      c = TB_LT;
+      break;
+    case TG_GT:
+      c = TB_GT;
+      break;
+    case TG_GE:
+      c = TB_GE;
+      break;
   }
   tgCode_write(p->code, c);
 }
@@ -102,7 +117,7 @@ static size_t tgParser_expr(tgParser* p, size_t lhp) {
 }
 
 static void tgParser_exprAssign(tgParser* p, size_t symoff) {
-  tgCode_writeA(p->code, TB_PUSH, symoff);
+  tgCode_writeA(p->code, TB_PUSHR, symoff);
   tgParser_expr(p, 0);
   tgCode_write(p->code, TB_ASSIGN);
 }
@@ -150,6 +165,7 @@ static void tgParser_stmtBody(tgParser* p) {
 }
 
 static void tgParser_if(tgParser* p);
+static void tgParser_while(tgParser* p);
 
 static void tgParser_stmt(tgParser* p) {
   tgLexer_parse(p);
@@ -157,12 +173,30 @@ static void tgParser_stmt(tgParser* p) {
     case TG_IF:
       tgParser_if(p);
       break;
+    case TG_WHILE:
+      tgParser_while(p);
+      break;
     default:
       tgParser_stmtBody(p);
       break;
     case TG_EOF:
       return;
   }
+}
+
+static void tgParser_while(tgParser* p) {
+  tgLexer_expect(p, TG_LPARENS);
+  tgLexer_parse(p);
+  size_t preexpr = p->code->curr - p->code->begin;
+  tgParser_expr(p,0);
+  tgCode_jif(p->code);
+  size_t joff = p->code->curr - p->code->begin;
+  tgParser_stmt(p);
+  //tgLexer_parse(p);
+  tgCode_rjmp(p->code);
+  size_t eoff = p->code->curr - p->code->begin;
+  p->code->begin[joff - 1] = eoff - joff;
+  p->code->begin[eoff - 1] = eoff - preexpr;
 }
 
 static void tgParser_if(tgParser* p) {

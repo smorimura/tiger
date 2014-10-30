@@ -11,5 +11,6 @@ typedef struct tgBuffer_ tgBuffer;
 typedef struct tgState_ tgState;
 typedef struct tgEnv_ tgEnv;
 typedef struct tgValue_ tgValue;
+typedef unsigned char tgRaw;
 
 #endif // TIGER_FWDTIGER_H

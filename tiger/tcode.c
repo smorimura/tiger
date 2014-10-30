@@ -227,6 +227,18 @@ size_t tgCode_defSym(tgCode* c, tgString s) {
   return soff;
 }
 
+tgInteger tgCode_getInt(tgCode* c, size_t idx) {
+  return c->k.begin[idx].data.integer;
+}
+
+tgReal tgCode_getReal(tgCode* c, size_t idx) {
+  return c->k.begin[idx].data.real;
+}
+
+tgString tgCode_getStr(tgCode* c, size_t idx) {
+  return c->k.begin[idx].data.string;
+}
+
 static void tgCode_grow(tgCode* t) {
   size_t curr = t->end - t->begin;
   size_t next = curr * 2 + 1;
@@ -270,6 +282,7 @@ void tgCode_writeABC(tgCode* c, tgByteCode OP, size_t A, size_t B, size_t C) {
 static tgByteCode tgCode_fprintOp(FILE* out, tgByteCode b) {
   switch (b) {
     BC(TB_PUSH)
+    BC(TB_PUSHR)
     BC(TB_PUSHK)
     BC(TB_DIV)
     BC(TB_MUL)
@@ -282,6 +295,7 @@ static tgByteCode tgCode_fprintOp(FILE* out, tgByteCode b) {
     BC(TB_LT)
     BC(TB_LE)
     BC(TB_JIT)
+    BC(TB_RJMP)
     BC(TB_JIF)
     BC(TB_JMP)
     BC(TB_CALL)
@@ -359,6 +373,7 @@ void tgCode_fprint(FILE* out, tgCode* c) {
     while (curr != c->curr) {
       switch(tgCode_fprintOp(out, *curr)) {
         case TB_PUSH:
+        case TB_PUSHR:
           fprintf(out, "   ");
           tgCode_fprintK(out, c, *++curr);
           break;
@@ -373,6 +388,7 @@ void tgCode_fprint(FILE* out, tgCode* c) {
         case TB_JIT:
         case TB_JIF:
         case TB_JMP:
+        case TB_RJMP:
           fprintf(out, "    ");
           fprintf(out, "%d", *++curr);
           break;

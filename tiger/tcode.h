@@ -98,6 +98,11 @@ size_t tgCode_defReal(tgCode* c, tgReal kreal);
 size_t tgCode_defStr(tgCode* c, tgString kstr);
 size_t tgCode_defSym(tgCode* c, tgString s);
 
+// Get constants
+tgInteger tgCode_getInt(tgCode* c, size_t idx);
+tgReal tgCode_getReal(tgCode* c, size_t idx);
+tgString tgCode_getStr(tgCode* c, size_t idx);
+
 // Write bytecode
 void tgCode_write(tgCode* c, tgByteCode OP);
 void tgCode_writeA(tgCode* c, tgByteCode OP, size_t A);
@@ -111,6 +116,7 @@ void tgCode_writeABC(tgCode* c, tgByteCode OP, size_t A, size_t B, size_t C);
 #define tgCode_jit(c)         tgCode_writeA(c,TB_JIT,0xFF)
 #define tgCode_jif(c)         tgCode_writeA(c,TB_JIF,0xFF)
 #define tgCode_jmp(c)         tgCode_writeA(c,TB_JMP,0xFF)
+#define tgCode_rjmp(c)        tgCode_writeA(c,TB_RJMP,0xFF)
 
 // Output to file
 void tgCode_fprint(FILE* out, tgCode* c);

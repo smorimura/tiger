@@ -102,3 +102,12 @@ void tgOpt_fprint(FILE *f, tgOpt const opts[]) {
     ++opts;
   }
 }
+
+int tgOpt_parse(int argc, char const *argv[], tgOpt const opts[]) {
+  int filesIdx = 0;
+  while (++filesIdx < argc) {
+    if (!tgOpt_proccess(argc, argv, &filesIdx, opts)) {
+      break;
+    }
+  }
+}

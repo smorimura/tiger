@@ -21,6 +21,7 @@ enum tgByteCode_ {
   // Memory Manipulation
   TB_PUSH,     /*| A     | OP_MOVE Rtop S(A)       | N/A*/
   TB_PUSHK,    /*| A     | OP_MOVE Rtop K(A)       | N/A*/
+  TB_PUSHR,    /*| A     | OP_MOVE Rtop &S(A)      | N/A*/
 
   // Arithmetic Operations
   TB_DIV,      /*|       | OP_ADD  Rtop Rtop Rtop-1| N/A*/
@@ -30,7 +31,7 @@ enum tgByteCode_ {
   TB_EQ,TB_LT,TB_LE,TB_GT,TB_GE,
 
   // Jumps
-  TB_JMP,TB_JIT,TB_JIF,
+  TB_JMP,TB_JIT,TB_JIF,TB_RJMP,
 
   // Calls
   TB_CALL,

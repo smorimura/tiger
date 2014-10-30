@@ -41,9 +41,9 @@ target_link_libraries(tc tiger)
 install(TARGETS tc DESTINATION bin)
 
 # Add Tiger Interpreter
-# add_executable(tl tiger/tl.c)
-# target_link_libraries(tl tiger)
-# install(TARGETS tl DESTINATION bin)
+add_executable(tl tiger/tl.c)
+target_link_libraries(tl tiger)
+install(TARGETS tl DESTINATION bin)
 
 # Linking to gcov for coverage
 if(TIGER_PROFILING)

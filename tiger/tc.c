@@ -78,10 +78,11 @@ static void writeCode(tgState* T, char const* path, char const* opath) {
     if (!opath) {
       opath = buildOPath(path);
     }
-    FILE *f = fopen(opath, "wb");
+    FILE *f = fopen(opath, "wb");FILE *f2 = fopen("BINARY.OUT", "ww");
     CASSERT(f, CERR_FOPEN_WRITE, "%s: Could not open file or directory.\n", opath);
     tgCode_fprintb(f, code);
-    fclose(f);
+    tgCode_fprint(f2, code);
+    fclose(f);fclose(f2);
   }
   else {
     CERROR(CERR_FOPEN_READ, "%s: No such file or directory.\n", path);
