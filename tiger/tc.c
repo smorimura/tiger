@@ -120,9 +120,9 @@ static void err_invalid(int *argc, char const* argv[]) {
  * Options Definitions
  ******************************************************************************/
 static tgOpt options[] = {
-  { 'h', "help", &print_help, "Displays this help information." },
+  { 'h', "help",    &print_help,  "Displays this help information." },
   { 'c', "compile", &set_compile, "Specifies one particular compile file." },
-  { 'o', "output", &set_output, "Specifies on particular output file. (Only works with -c)" },
+  { 'o', "output",  &set_output,  "Specifies on particular output file. (Only works with -c)" },
   { 0, NULL, &err_invalid, NULL }
 };
 
@@ -133,13 +133,7 @@ int main(int argc, char const* argv[]) {
   int filesIdx = 0;
   arg0 = argv[0];
 
-  // Check for options
-  while (++filesIdx < argc) {
-    if (!tgOpt_proccess(argc, argv, &filesIdx, options)) {
-      break;
-    }
-  }
-
+  filesIdx = tgOpt_parse(argc, argv, options);
   tgState *T = tgState_create(&tgMalloc, NULL);
 
   // Check for specific file handling.

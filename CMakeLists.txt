@@ -45,6 +45,11 @@ add_executable(tl tiger/tl.c)
 target_link_libraries(tl tiger)
 install(TARGETS tl DESTINATION bin)
 
+# Add Tiger Interpreter
+add_executable(td tiger/td.c)
+target_link_libraries(td tiger)
+install(TARGETS td DESTINATION bin)
+
 # Linking to gcov for coverage
 if(TIGER_PROFILING)
   target_link_libraries(tl gcov)

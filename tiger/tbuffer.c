@@ -9,6 +9,8 @@
 #include <string.h>
 
 int tgBuffer_readFile(tgBuffer* b) {
+  if (feof((FILE*)b->data)) return 0;
+
   // Copy unread portion to start of buffer
   memcpy(b->begin, b->curr, b->end - b->curr);
 

@@ -227,7 +227,6 @@ static void tgParser_if(tgParser* p) {
   if (tgTag(p) == TG_ELSE) {
     tgLexer_parse(p);
     tgParser_stmt(p);
-    tgLexer_parse(p);
     size_t eelse = p->code->curr - p->code->begin;
     size_t jelse = eelse - eoff;
     p->code->begin[eoff - 1] = jelse;

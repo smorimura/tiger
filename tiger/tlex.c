@@ -70,7 +70,7 @@ void tgLexer_next(tgLexer* lex) {
 tgTag tgLexer_singleLineComment(tgLexer* lex) {
   do {
     tgLexer_next(lex);
-  } while (tgTerm(lex) != '\n');
+  } while (tgTerm(lex) != '\n' & tgTerm(lex) != EOF);
   ++lex->lcomment;
   return TG_NOP;
 }
