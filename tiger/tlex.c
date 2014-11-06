@@ -77,7 +77,7 @@ tgTag tgLexer_singleLineComment(struct tgLexer_* lex) {
 }
 
 tgTag tgLexer_multiLineComment(struct tgLexer_* lex) {
-  char last;
+  char last = 0;
   size_t commentScope = 1;
   for (;;) {
     tgLexer_next(lex);
@@ -104,7 +104,7 @@ tgTag tgLexer_multiLineComment(struct tgLexer_* lex) {
 }
 
 tgTag tgLexer_informationalComment(struct tgLexer_* lex) {
-  char prev;
+  char prev = 0;
   for (;;) {
     tgLexer_next(lex);
     if (prev == '!' && tgTerm(lex) == '/') break;

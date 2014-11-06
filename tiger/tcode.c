@@ -263,17 +263,17 @@ void tgCode_write(tgCode* c, tgByteCode OP) {
 
 void tgCode_writeA(tgCode* c, tgByteCode OP, size_t A) {
   tgCode_write(c, OP);
-  tgCode_push(c, A);
+  tgCode_push(c, (tgRaw)A);
 }
 
 void tgCode_writeAB(tgCode* c, tgByteCode OP, size_t A, size_t B) {
   tgCode_writeA(c, OP, A);
-  tgCode_push(c, B);
+  tgCode_push(c, (tgRaw)B);
 }
 
 void tgCode_writeABC(tgCode* c, tgByteCode OP, size_t A, size_t B, size_t C) {
   tgCode_writeAB(c, OP, A, B);
-  tgCode_push(c, C);
+  tgCode_push(c, (tgRaw)C);
 }
 
 /* Output to file */

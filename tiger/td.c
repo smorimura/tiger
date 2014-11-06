@@ -63,7 +63,7 @@ static void disassembleFile(FILE* in, FILE* out) {
         char val[4096];
         char *curr = val;
         do {
-          *curr = fgetc(in);
+          *curr = (char)fgetc(in);
         } while (*(curr++) != 0);
         fprintf(out, "K(%d) : String   = \"%s\"\n", i, val);
       }

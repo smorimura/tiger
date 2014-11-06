@@ -36,6 +36,7 @@ static void tgParser_load(tgParser* p) {
     case TG_STRING:
       off = tgCode_defStr(p->code, tgAttrib(p).string);
     default:
+      off = 0xFF;
       break;
   }
   tgCode_loadk(p->code, *ridx, off);
@@ -92,6 +93,7 @@ static void tgParser_writeOp(tgParser* p, tgTag op) {
       c = TB_GE;
       break;
     default:
+      c = TB_RESERVED;
       break;
   }
   tgCode_write(p->code, c);
@@ -214,8 +216,8 @@ static void tgParser_while(tgParser* p) {
   tgParser_stmt(p);
   tgCode_rjmp(p->code);
   eoff = p->code->curr - p->code->begin;
-  p->code->begin[joff - 1] = eoff - joff;
-  p->code->begin[eoff - 1] = eoff - preexpr;
+  p->code->begin[joff - 1] = (tgRaw)(eoff - joff);
+  p->code->begin[eoff - 1] = (tgRaw)(eoff - preexpr);
 }
 
 static void tgParser_if(tgParser* p) {
@@ -231,14 +233,14 @@ static void tgParser_if(tgParser* p) {
     tgCode_jmp(p->code);
   eoff = p->code->curr - p->code->begin;
   jump = eoff - joff;
-  p->code->begin[joff - 1] = jump;
+  p->code->begin[joff - 1] = (tgRaw)jump;
   if (tgTag(p) == TG_ELSE) {
     size_t eelse, jelse;
     tgLexer_parse(p);
     tgParser_stmt(p);
     eelse = p->code->curr - p->code->begin;
     jelse = eelse - eoff;
-    p->code->begin[eoff - 1] = jelse;
+    p->code->begin[eoff - 1] = (tgRaw)jelse;
   }
 }
 
