@@ -22,13 +22,9 @@ typedef enum tdErr_ tdErr;
 #define CASSERT(b,e,...) if (!(b)) tcerr(e, __VA_ARGS__)
 
 /*******************************************************************************
- * Forward Declaration
- ******************************************************************************/
-static tgOpt const options[];
-
-/*******************************************************************************
  * Global Properties
  ******************************************************************************/
+static tgOpt const *options_ = NULL;
 static char const* arg0 = NULL;
 static char const* in   = NULL;
 static char const* out  = NULL;
@@ -36,22 +32,8 @@ static char const* out  = NULL;
 /*******************************************************************************
  * Private Functions
  ******************************************************************************/
-static void tderr(tdErr e, char const* fmt, ...) {
-  printf("%s: Fatal Error: ", arg0);
-  va_list ap;
-  va_start(ap, fmt);
-  vprintf(fmt, ap);
-  va_end(ap);
-  exit(e);
-}
-
 static void print_usage() {
   printf("Usage: %s [OPTION]... [FILE]...\n", arg0);
-}
-
-static void print_usageTry() {
-  print_usage();
-  printf("Try '%s --help' for more information.\n", arg0);
 }
 
 #define SC(t) case t: fprintf(out, "%s\n", #t); break
@@ -138,8 +120,9 @@ static void disassemble(char const* path) {
  * Options Callbacks
  ******************************************************************************/
 static void print_help(int *argc, char const* argv[]) {
+  (void)argc; (void)argv;
   print_usage();
-  tgOpt_fprint(stdout, options);
+  tgOpt_fprint(stdout, options_);
   printf(
     "For bug reporting instructions, please see:\n"
     "<http://bugs.libtiger.org/>\n"
@@ -173,6 +156,7 @@ static tgOpt const options[] = {
  * Main
  ******************************************************************************/
 int main(int argc, char const* argv[]) {
+  options_ = options;
   tgOpt_parse(argc, argv, options);
 
   if (in) {

@@ -13,7 +13,8 @@
  * tgState Private Methods
  ******************************************************************************/
 
-static void tgState_execBuffer(tgState* T, tgBuffer* buffer) {
+/*
+static void tgState_execBuffer(struct tgState_* T, struct tgBuffer_* buffer) {
   tgLexer parser;
   tgLexer_init(T, &parser, buffer);
   do {
@@ -21,8 +22,9 @@ static void tgState_execBuffer(tgState* T, tgBuffer* buffer) {
   } while (parser.tokens[0].tag != TG_EOF);
   tgLexer_dinit(&parser);
 }
+*/
 
-static tgCode* tgState_compileBuffer(tgState* T, tgBuffer* buffer) {
+static tgCode* tgState_compileBuffer(struct tgState_* T, struct tgBuffer_* buffer) {
   tgLexer parser;
   tgCode *finalCode;
 
@@ -47,8 +49,8 @@ static tgCode* tgState_compileBuffer(tgState* T, tgBuffer* buffer) {
  * @param ud The userdata that will be passed to \p alloc.
  * @return tgState*
  */
-tgState* tgState_create(tgAllocator alloc, void* ud) {
-  tgState* T = alloc(ud, NULL, sizeof(tgState));
+struct tgState_* tgState_create(tgAllocator alloc, void* ud) {
+  struct tgState_* T = alloc(ud, NULL, sizeof(struct tgState_));
   T->allocator = alloc;
   T->allocatorData = ud;
   T->env = tgEnv_alloc(T, 5, NULL);
@@ -65,33 +67,33 @@ tgState* tgState_create(tgAllocator alloc, void* ud) {
  * @param T The state that should be freed.
  * @return void
  */
-void tgState_free(tgState* T) {
+void tgState_free(struct tgState_* T) {
   tgEnv_free(T->env);
   free(T);
 }
 
-int tgState_addCFunc(tgState* T, char const* fname, tgCallback func) {
-  tgSymbol* sym = tgEnv_newSym(T, T->env, fname);
+int tgState_addCFunc(struct tgState_* T, char const* fname, tgCallback func) {
+  struct tgSymbol_* sym = tgEnv_newSym(T, T->env, fname);
 
   if(!sym) return 0;
 
-  sym->data = func;
+  sym->callback = func;
   sym->tag = TG_CFUNCTION;
 
   return 1;
 }
 
-void tgState_execFile(tgState* T, char const* path) {
+void tgState_execFile(struct tgState_* T, char const* path) {
   tgCode *c = tgState_compileFile(T, path);
   tgState_execCode(T, c);
 }
 
-void tgState_execLiteral(tgState* T, char const* str) {
+void tgState_execLiteral(struct tgState_* T, char const* str) {
   tgCode *c = tgState_compileLiteral(T, str);
   tgState_execCode(T, c);
 }
 
-void tgState_execCode(tgState* T, tgCode* c) {
+void tgState_execCode(struct tgState_* T, tgCode* c) {
   tgRaw *curr = c->begin;
   while (curr < c->curr) {
     switch (*(curr++)) {
@@ -123,6 +125,8 @@ void tgState_execCode(tgState* T, tgCode* c) {
           case TGK_STRING:
             tgState_pushStr(T, k.data.string);
             break;
+          default:
+            break;
         }
       }
         break;
@@ -145,7 +149,7 @@ void tgState_execCode(tgState* T, tgCode* c) {
       {
         tgString k = tgCode_getStr(c, *(curr++));
         tgSymbol* sym = tgEnv_getSym(T->env, k);
-        tgCallback cb = (tgCallback)sym->data;
+        tgCallback cb = sym->callback;
         tgState_call(T, cb);
       }
       break;
@@ -198,7 +202,7 @@ void tgState_execCode(tgState* T, tgCode* c) {
 
 tgCode* tgState_compileFile(tgState* T, char const* path) {
   tgCode *c = NULL;
-  tgBuffer *b = tgBuffer_allocFile(T, path);
+  struct tgBuffer_*b = tgBuffer_allocFile(T, path);
   if (b) {
     c = tgState_compileBuffer(T, b);
     tgBuffer_freeFile(T, b);
@@ -208,26 +212,12 @@ tgCode* tgState_compileFile(tgState* T, char const* path) {
 
 tgCode* tgState_compileLiteral(tgState* T, const char* str) {
   tgCode *c = NULL;
-  tgBuffer *b = tgBuffer_allocLiteral(T, str);
+  struct tgBuffer_ *b = tgBuffer_allocLiteral(T, str);
   if (b) {
     c = tgState_compileBuffer(T, b);
     tgBuffer_freeLiteral(T, b);
   }
   return c;
-}
-
-static void tgPrintAttrib(tgToken* t) {
-  switch (t->type) {
-    case TA_INTEGER:
-      printf("<%d>", t->attrib.integer);
-      break;
-    case TA_REAL:
-      printf("<%f>", t->attrib.real);
-      break;
-    case TA_STRING:
-      printf("<%s>", t->attrib.string);
-      break;
-  }
 }
 
 void tgState_pushk(tgState* T, tgValue* v) {
@@ -319,6 +309,8 @@ void tgState_callb(tgState* T, tgByteCode c) {
       break;
     case TB_EQ:
       reop(==);
+      break;
+    default:
       break;
   }
 }

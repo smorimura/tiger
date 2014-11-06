@@ -28,7 +28,7 @@ static int tgOpt_checkOpt(char const **arg) {
 }
 
 static int tgOpt_processOpt(int *pargc, char const* argv[], char const *arg, tgOpt const *opts, tgOptChk check) {
-  // Check each existing option.
+  /* Check each existing option. */
   while (!tgOpt_nil(opts)) {
     if (check(opts, arg)) {
       opts->callback(pargc, argv);
@@ -37,30 +37,31 @@ static int tgOpt_processOpt(int *pargc, char const* argv[], char const *arg, tgO
     ++opts;
   }
 
-  // See if there is a fallback function.
+  /* See if there is a fallback function. */
   if (opts->callback) {
     opts->callback(pargc, argv);
     return 1;
   }
 
-  // Otherwise, unhandled
+  /* Otherwise, unhandled */
   return 0;
 }
 
 static int tgOpt_shortOpt(int *pargc, char const* argv[], char const* arg, tgOpt const *opts) {
-  tgOpt_processOpt(pargc, argv, arg, opts, &tgOptChk_short);
+  return tgOpt_processOpt(pargc, argv, arg, opts, &tgOptChk_short);
 }
 
 static int tgOpt_longOpt(int *pargc, char const* argv[], char const* arg, tgOpt const *opts) {
-  tgOpt_processOpt(pargc, argv, arg, opts, &tgOptChk_long);
+  return tgOpt_processOpt(pargc, argv, arg, opts, &tgOptChk_long);
 }
 
 int tgOpt_proccess(int argc, char const* argv[], int *idx, tgOpt const opts[]) {
   char const* currOpt = argv[*idx];
+  (void)argc;
 
-  // Check if long option
+  /* Check if long option */
   if (tgOpt_checkOpt(&currOpt)) {
-    // Check if short option
+    /* Check if short option */
     if (tgOpt_checkOpt(&currOpt)) {
       return tgOpt_longOpt(idx, argv, currOpt, opts);
     } else {
@@ -68,7 +69,7 @@ int tgOpt_proccess(int argc, char const* argv[], int *idx, tgOpt const opts[]) {
     }
   }
 
-  // Argument was not an option.
+  /* Argument was not an option. */
   return 0;
 }
 
@@ -95,7 +96,7 @@ static void tgOpt_fprintOpt(FILE *f, tgOpt const *opt, int width) {
 void tgOpt_fprint(FILE *f, tgOpt const opts[]) {
   int spacing = tgOpt_getLongest(opts);
 
-  // Print Options list
+  /* Print Options list */
   fprintf(f, "Options:\n");
   while (!tgOpt_nil(opts)) {
     tgOpt_fprintOpt(f, opts, spacing);
@@ -110,4 +111,5 @@ int tgOpt_parse(int argc, char const *argv[], tgOpt const opts[]) {
       break;
     }
   }
+  return filesIdx;
 }

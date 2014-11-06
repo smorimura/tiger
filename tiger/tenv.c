@@ -39,7 +39,7 @@ typedef struct tgEnv_ tgEnv;
  * @return A tgEnvSym that may be concatenated with an existing symbol list.
  */
 
-static tgEnvSym* tgEnvSym_alloc(tgState* T, char const* name, size_t namelen, size_t hash) {
+static tgEnvSym* tgEnvSym_alloc(struct tgState_* T, char const* name, size_t namelen, size_t hash) {
   tgEnvSym* sym = tgAlloc(sizeof(tgEnvSym));
 
   sym->hash = hash;
@@ -98,7 +98,7 @@ static tgEnvSym* tgEnv_getLocalSym_(tgEnv* env, char const* name, size_t hash) {
   size_t idx = hash % env->size;
   tgEnvSym* sym = env->symbols[idx];
 
-  // Search through all possible matches for the symbol.
+  /* Search through all possible matches for the symbol. */
   while(sym) {
     if(sym->hash == hash && (strcmp(sym->sym.name, name) == 0))
       return sym;
@@ -120,10 +120,9 @@ static tgEnvSym* tgEnv_getLocalSym_(tgEnv* env, char const* name, size_t hash) {
  *         if the symbol does not exist.
  */
 static tgEnvSym* tgEnv_getSym_(tgEnv* env, char const* name, size_t hash) {
-  size_t idx;
   tgEnvSym* sym;
 
-  // Search through all parent environments for the symbol.
+  /* Search through all parent environments for the symbol. */
   while(env) {
     sym = tgEnv_getLocalSym_(env, name, hash);
     if(sym) return sym;
@@ -145,7 +144,7 @@ static tgEnvSym* tgEnv_getSym_(tgEnv* env, char const* name, size_t hash) {
  * @param prev A pointer to the parent tgEnv (may be NULL for no parent).
  * @return An instance of tgEnv which is nested within \p prev.
  */
-tgEnv* tgEnv_alloc(tgState* T, int size, tgEnv* prev) {
+tgEnv* tgEnv_alloc(struct tgState_* T, int size, tgEnv* prev) {
   tgEnv* env = tgAlloc(sizeof(tgEnv));
 
   env->size = size;
@@ -162,7 +161,7 @@ tgEnv* tgEnv_alloc(tgState* T, int size, tgEnv* prev) {
  * @param name The name of the symbol - used for lookup table.
  * @return The newly constructed symbol.
  */
-tgSymbol* tgEnv_newSym(tgState* T, tgEnv* env, const char* name) {
+tgSymbol* tgEnv_newSym(struct tgState_* T, tgEnv* env, const char* name) {
   size_t symlen = 0;
   size_t hash = tgEnv_hash_(name, &symlen);
   size_t idx = hash % env->size;
@@ -170,7 +169,7 @@ tgSymbol* tgEnv_newSym(tgState* T, tgEnv* env, const char* name) {
 
   if (symbol) return NULL;
 
-  // Symbol does not exist, create it
+  /* Symbol does not exist, create it */
   symbol = tgEnvSym_alloc(T, name, symlen, hash);
   symbol->next = env->symbols[idx];
   env->symbols[idx] = symbol;

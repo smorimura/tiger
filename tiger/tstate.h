@@ -14,7 +14,7 @@
  * State Declaration
  ******************************************************************************/
 struct tgState_ {
-  tgEnv *env;
+  struct tgEnv_ *env;
   tgValue *stack;
   tgValue *top;
   tgValue *ktab;
@@ -33,7 +33,7 @@ void tgState_free(tgState* T);
 
 int tgState_addCFunc(tgState* T, const char* fname, tgCallback func);
 
-// State Manipulation
+/* State Manipulation */
 tgValue* tgState_defK(tgState* T, tgValue v);
 tgValue* tgState_defS(tgState* T, tgValue* kn);
 void tgState_push(tgState* T, tgValue* v);
@@ -45,11 +45,11 @@ void tgState_call(tgState* T, tgCallback cb);
 tgValue* tgState_pop(tgState* T);
 void tgState_callb(tgState* T, tgByteCode c);
 
-// Code Execution / Compilation
+/* Code Execution / Compilation */
 void tgState_execFile(tgState* T, char const* path);
 void tgState_execLiteral(tgState* T, char const* str);
 void tgState_execCode(tgState* T, tgCode* c);
 tgCode* tgState_compileFile(tgState* T, char const* path);
 tgCode* tgState_compileLiteral(tgState* T, char const* str);
 
-#endif // TIGER_TSTATE_H
+#endif /* TIGER_TSTATE_H */

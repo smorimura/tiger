@@ -11,19 +11,22 @@ void* tgMalloc(void* ud, void* ptr, size_t req) {
   return realloc(ptr, req);
 }
 
-// Memory allocation routines
-void* tgAlloc_(tgState* T, size_t s) {
+void* tgAlloc_(struct tgState_* T, size_t s) {
   return T->allocator(T->allocatorData, NULL, s);
 }
 
-void* tgAllocChk_(tgState* T, size_t s, char const* file, size_t line) {
+void* tgAllocChk_(struct tgState_* T, size_t s, char const* file, size_t line) {
+  (void)file;
+  (void)line;
   return tgAlloc_(T, s);
 }
 
-void  tgFree_(tgState* T, void* ptr) {
+void  tgFree_(struct tgState_* T, void* ptr) {
   (void)T->allocator(T->allocatorData, ptr, 0);
 }
 
-void  tgFreeChk_(tgState* T, void* ptr, char const* file, size_t line) {
+void  tgFreeChk_(struct tgState_* T, void* ptr, char const* file, size_t line) {
+  (void)file;
+  (void)line;
   tgFree_(T, ptr);
 }

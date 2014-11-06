@@ -19,19 +19,15 @@
 struct tgSymbol_ {
   char const *name;
   void *data;
+  int (*callback)(struct tgState_*);
   tgTag tag;
 };
 typedef struct tgSymbol_ tgSymbol;
 
-/*******************************************************************************
- * Environment Methods
- ******************************************************************************/
-typedef struct tgEnv_ tgEnv;
+struct tgEnv_* tgEnv_alloc(struct tgState_* T, int size, struct tgEnv_* prev);
+struct tgSymbol_* tgEnv_newSym(struct tgState_* T, struct tgEnv_* env, const char* name);
+struct tgSymbol_* tgEnv_getSym(struct tgEnv_* env, char const* name);
+struct tgSymbol_* tgEnv_getLocalSym(struct tgEnv_* env, char const* name);
+void tgEnv_free(struct tgEnv_* env);
 
-tgEnv* tgEnv_alloc(tgState* T, int size, tgEnv* prev);
-tgSymbol* tgEnv_newSym(tgState* T, tgEnv* env, const char* name);
-tgSymbol* tgEnv_getSym(tgEnv* env, char const* name);
-tgSymbol* tgEnv_getLocalSym(tgEnv* env, char const* name);
-void tgEnv_free(tgEnv* env);
-
-#endif // TIGER_TENV_H
+#endif /* TIGER_TENV_H */

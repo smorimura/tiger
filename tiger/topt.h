@@ -19,6 +19,6 @@ typedef struct tgOpt_ tgOpt;
 
 int tgOpt_parse(int argc, const char* argv[], tgOpt const opts[]);
 int tgOpt_proccess(int argc, char const *argv[], int *idx, tgOpt const opts[]);
-void tgOpt_fprint(FILE *f, tgOpt const opts[]);
+void tgOpt_fprint(FILE *f, tgOpt const *opts);
 
-#endif // TIGER_TOPT_H
+#endif /* TIGER_TOPT_H */

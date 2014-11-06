@@ -16,4 +16,4 @@ typedef int tgInteger;
 typedef char* tgString;
 #define tgStringFromCharPtr(string, charPtr) (string = malloc(sizeof(char) * strlen(charPtr) + 1), strcpy(string, charPtr))
 
-#endif // TIGER_TCONFIG_H
+#endif /* TIGER_TCONFIG_H */

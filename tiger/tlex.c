@@ -20,13 +20,13 @@
 /*******************************************************************************
  * tgLexer Public Methods
  ******************************************************************************/
-tgLexer* tgLexer_alloc(tgState* T, tgBuffer* b) {
+tgLexer* tgLexer_alloc(struct tgState_* T, struct tgBuffer_* b) {
   tgLexer* lex = tgAlloc(sizeof(tgLexer));
   tgLexer_init(T, lex, b);
   return lex;
 }
 
-void tgLexer_init(tgState* T, tgLexer* lex, tgBuffer* b) {
+void tgLexer_init(struct tgState_* T, struct tgLexer_* lex, struct tgBuffer_* b) {
   int lookahead = 0;
   lex->buffer = b;
   lex->filename = NULL;
@@ -39,10 +39,11 @@ void tgLexer_init(tgState* T, tgLexer* lex, tgBuffer* b) {
   }
 }
 
-void tgLexer_dinit(tgLexer* lex) {
+void tgLexer_dinit(struct tgLexer_* lex) {
+  (void)lex;
 }
 
-void tgLexer_free(tgState* T, tgLexer* lex) {
+void tgLexer_free(struct tgState_* T, struct tgLexer_* lex) {
   tgLexer_dinit(lex);
   tgFree(lex);
 }
@@ -54,7 +55,7 @@ static void tgLexer_error(char const* fmt, ...) {
   va_end(vargs);
 }
 
-void tgLexer_next(tgLexer* lex) {
+void tgLexer_next(struct tgLexer_* lex) {
   tgTerm(lex) = tgBuffer_next(lex->buffer);
   switch (tgTerm(lex)) {
     case '\n':
@@ -67,15 +68,15 @@ void tgLexer_next(tgLexer* lex) {
   }
 }
 
-tgTag tgLexer_singleLineComment(tgLexer* lex) {
+tgTag tgLexer_singleLineComment(struct tgLexer_* lex) {
   do {
     tgLexer_next(lex);
-  } while (tgTerm(lex) != '\n' & tgTerm(lex) != EOF);
+  } while (tgTerm(lex) != '\n' && tgTerm(lex) != EOF);
   ++lex->lcomment;
   return TG_NOP;
 }
 
-tgTag tgLexer_multiLineComment(tgLexer* lex) {
+tgTag tgLexer_multiLineComment(struct tgLexer_* lex) {
   char last;
   size_t commentScope = 1;
   for (;;) {
@@ -102,8 +103,7 @@ tgTag tgLexer_multiLineComment(tgLexer* lex) {
   return TG_NOP;
 }
 
-// Currently, this does nothing. Reserved for future use.
-tgTag tgLexer_informationalComment(tgLexer* lex) {
+tgTag tgLexer_informationalComment(struct tgLexer_* lex) {
   char prev;
   for (;;) {
     tgLexer_next(lex);
@@ -114,19 +114,19 @@ tgTag tgLexer_informationalComment(tgLexer* lex) {
   return TG_NOP;
 }
 
-tgTag tgLexer_preprocessor(tgLexer* lex) {
+tgTag tgLexer_preprocessor(struct tgLexer_* lex) {
   tgLexer_next(lex);
   switch (tgTerm(lex)) {
     case '!':
-      // Crunch-Bang symbol
       return tgLexer_singleLineComment(lex);
     default:
       tgLexer_error("Undefined preprocessor formation! Expected `!` found `%c`\n", tgTerm(lex));
       break;
   }
+  return TG_ERROR;
 }
 
-tgTag tgLexer_add(tgLexer* lex) {
+tgTag tgLexer_add(struct tgLexer_* lex) {
   tgLexer_next(lex);
   switch (tgTerm(lex)) {
     case '=':
@@ -138,7 +138,7 @@ tgTag tgLexer_add(tgLexer* lex) {
   }
 }
 
-tgTag tgLexer_sub(tgLexer* lex) {
+tgTag tgLexer_sub(struct tgLexer_* lex) {
   tgLexer_next(lex);
   switch (tgTerm(lex)) {
     case '=':
@@ -150,7 +150,7 @@ tgTag tgLexer_sub(tgLexer* lex) {
   }
 }
 
-tgTag tgLexer_mul(tgLexer* lex) {
+tgTag tgLexer_mul(struct tgLexer_* lex) {
   tgLexer_next(lex);
   switch (tgTerm(lex)) {
     case '=':
@@ -162,7 +162,7 @@ tgTag tgLexer_mul(tgLexer* lex) {
   }
 }
 
-tgTag tgLexer_divOrComment(tgLexer* lex) {
+tgTag tgLexer_divOrComment(struct tgLexer_* lex) {
   tgLexer_next(lex);
   switch (tgTerm(lex)) {
     case '/':
@@ -179,7 +179,8 @@ tgTag tgLexer_divOrComment(tgLexer* lex) {
 }
 
 #define CHK(k,v) if (strcmp(#k, buff) == 0) return v;
-static tgLexer_checkKeyword(tgLexer* lex, char const* buff) {
+static int tgLexer_checkKeyword(struct tgLexer_* lex, char const* buff) {
+  (void)lex;
   CHK(if, TG_IF);
   CHK(else, TG_ELSE);
   CHK(while, TG_WHILE);
@@ -188,7 +189,7 @@ static tgLexer_checkKeyword(tgLexer* lex, char const* buff) {
 }
 #undef CHK
 
-tgTag tgLexer_identifier(tgLexer* lex) {
+tgTag tgLexer_identifier(struct tgLexer_* lex) {
   char buff[4096];
   char *str = buff;
   do {
@@ -198,15 +199,17 @@ tgTag tgLexer_identifier(tgLexer* lex) {
   *str = '\0';
   --lex->buffer->curr;
 
+  {
   tgTag t = tgLexer_checkKeyword(lex, buff);
   if (t != TG_IDENTIFIER) return t;
 
   tgToken(lex).type = TA_STRING;
   tgStringFromCharPtr(tgAttrib(lex).string, buff);
   return t;
+  }
 }
 
-tgTag tgLexer_real(tgLexer* lex, int whole) {
+tgTag tgLexer_real(struct tgLexer_* lex, int whole) {
   size_t digits = 1;
   size_t decimal = 0;
   do {
@@ -219,20 +222,22 @@ tgTag tgLexer_real(tgLexer* lex, int whole) {
   } while (isnum(tgTerm(lex)));
   --lex->buffer->curr;
 
-  tgToken(lex).type = TA_REAL;
-  float real = whole + ((float)decimal) / digits;
-  tgRealFromFloat(tgAttrib(lex).real, real);
-  return TG_REAL;
+  {
+    float real = whole + ((float)decimal) / digits;
+    tgToken(lex).type = TA_REAL;
+    tgRealFromFloat(tgAttrib(lex).real, real);
+    return TG_REAL;
+  }
 }
 
-tgTag tgLexer_integer(tgLexer* lex) {
+tgTag tgLexer_integer(struct tgLexer_* lex) {
   int whole = 0;
   do {
     whole = 10 * whole + tonum(tgTerm(lex));
     tgLexer_next(lex);
   } while (isnum(tgTerm(lex)));
 
-  // Check for decimal
+  /* Check for decimal */
   if (tgTerm(lex) == '.') {
     tgLexer_next(lex);
     return tgLexer_real(lex, whole);
@@ -244,7 +249,7 @@ tgTag tgLexer_integer(tgLexer* lex) {
   return TG_INTEGER;
 }
 
-tgTag tgLexer_declaration(tgLexer* lex) {
+tgTag tgLexer_declaration(struct tgLexer_* lex) {
   tgLexer_next(lex);
   switch (tgTerm(lex)) {
     case '=':
@@ -254,7 +259,7 @@ tgTag tgLexer_declaration(tgLexer* lex) {
   }
 }
 
-tgTag tgLexer_assign(tgLexer* lex) {
+tgTag tgLexer_assign(struct tgLexer_* lex) {
   tgLexer_next(lex);
   switch (tgTerm(lex)) {
     case '=':
@@ -264,7 +269,7 @@ tgTag tgLexer_assign(tgLexer* lex) {
   }
 }
 
-tgTag tgLexer_lt(tgLexer* lex) {
+tgTag tgLexer_lt(struct tgLexer_* lex) {
   tgLexer_next(lex);
   switch (tgTerm(lex)) {
     case '=':
@@ -274,7 +279,7 @@ tgTag tgLexer_lt(tgLexer* lex) {
   }
 }
 
-tgTag tgLexer_gt(tgLexer* lex) {
+tgTag tgLexer_gt(struct tgLexer_* lex) {
   tgLexer_next(lex);
   switch (tgTerm(lex)) {
     case '=':
@@ -284,7 +289,7 @@ tgTag tgLexer_gt(tgLexer* lex) {
   }
 }
 
-tgTag tgLexer_string(tgLexer* lex) {
+tgTag tgLexer_string(struct tgLexer_* lex) {
   char buff[4096];
   char *str = buff;
 
@@ -300,13 +305,13 @@ tgTag tgLexer_string(tgLexer* lex) {
   return TG_STRING;
 }
 
-tgTag tgLexer_parse_(tgLexer* lex) {
+tgTag tgLexer_parse_(struct tgLexer_* lex) {
+  tgTag tg;
   int lookahead = 0;
   while (++lookahead < TIGER_TOKEN_COUNT) {
     lex->tokens[lookahead - 1] = lex->tokens[lookahead];
   }
   lex->tokens[TIGER_TOKEN_COUNT - 1].type = TA_NONE;
-  tgTag tg;
   for (;;) {
     tgLexer_next(lex);
     switch (tgTerm(lex)) {
@@ -360,14 +365,14 @@ tgTag tgLexer_parse_(tgLexer* lex) {
   }
 }
 
-tgTag tgLexer_parse(tgLexer* lex) {
+tgTag tgLexer_parse(struct tgLexer_* lex) {
   do {
     lex->tokens[TIGER_TOKEN_COUNT - 1].tag = tgLexer_parse_(lex);
   } while(lex->tokens[0].tag == TG_ERROR);
   return lex->tokens[0].tag;
 }
 
-void tgLexer_expect(tgLexer* lex, tgTag t) {
+void tgLexer_expect(struct tgLexer_* lex, tgTag t) {
   if (tgLexer_parse(lex) != t)
     tgLexer_error("Expected a specific tag!\n");
 }

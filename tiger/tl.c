@@ -21,44 +21,27 @@ typedef enum tcErr_ tcErr;
 #define CASSERT(b,e,...) if (!(b)) tcerr(e, __VA_ARGS__)
 
 /*******************************************************************************
- * Forward Declarations
- ******************************************************************************/
-static tgOpt options[];
-
-/*******************************************************************************
  * Global Properties
  ******************************************************************************/
+static tgOpt const *options_ = NULL;
 static char const* arg0 = NULL;
 static char const* file = NULL;
 
 /*******************************************************************************
  * Private Functions
  ******************************************************************************/
-static void tlerr(tcErr e, char const* fmt, ...) {
-  printf("%s: Fatal Error: ", arg0);
-  va_list ap;
-  va_start(ap, fmt);
-  vprintf(fmt, ap);
-  va_end(ap);
-  exit(e);
-}
-
 static void print_usage() {
   printf("Usage: %s [OPTION]... [FILE]...\n", arg0);
 }
 
-static void print_usageTry() {
-  print_usage();
-  printf("Try '%s --help' for more information.\n", arg0);
-}
-
-
 int help(tgState* T) {
+  (void)T;
   printf("Under Construction\n");
   return 0;
 }
 
 int quit(tgState* T) {
+  (void)T;
   fclose(stdin);
   return 0;
 }
@@ -79,8 +62,9 @@ int printInt(tgState* T) {
  * Option Callbacks
  ******************************************************************************/
 static void print_help(int *argc, char const* argv[]) {
+  (void)argc; (void)argv;
   print_usage();
-  tgOpt_fprint(stdout, options);
+  tgOpt_fprint(stdout, options_);
   printf(
     "For bug reporting instructions, please see:\n"
     "<http://bugs.libtiger.org/>\n"
@@ -112,6 +96,7 @@ int main(int argc, char const* argv[]) {
 
   // Create and initialize TigerScript
   tgState *T = tgState_create(tgMalloc, NULL);
+  options_ = options;
 
   // Handle command-line options
   tgOpt_parse(argc, argv, options);

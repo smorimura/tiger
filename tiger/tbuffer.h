@@ -11,7 +11,7 @@
 /*******************************************************************************
  * Buffer Declarations
  ******************************************************************************/
-typedef int (*tgRead)(tgBuffer*);
+typedef int (*tgRead)(struct tgBuffer_*);
 struct tgBuffer_{
   char       *begin;
   char const *curr;
@@ -23,16 +23,16 @@ struct tgBuffer_{
 /*******************************************************************************
  * Public Functions
  ******************************************************************************/
-// Reader Functions
-int tgRead_readFile(tgBuffer* b);
+/* Reader Functions */
+int tgRead_readFile(struct tgBuffer_* b);
 
-// Allocation Routines
-tgBuffer* tgBuffer_allocFile(tgState* T, const char* filename);
-tgBuffer* tgBuffer_allocLiteral(tgState* T, const char* str);
-void tgBuffer_freeFile(tgState* T, tgBuffer* b);
-void tgBuffer_freeLiteral(tgState* T, tgBuffer* b);
+/* Allocation Routines */
+struct tgBuffer_* tgBuffer_allocFile(struct tgState_* T, const char* filename);
+struct tgBuffer_* tgBuffer_allocLiteral(struct tgState_* T, const char* str);
+void tgBuffer_freeFile(struct tgState_* T, struct tgBuffer_* b);
+void tgBuffer_freeLiteral(struct tgState_* T, struct tgBuffer_* b);
 
-// Generic Functionality
-char tgBuffer_next(tgBuffer* b);
+/* Generic Functionality */
+char tgBuffer_next(struct tgBuffer_* b);
 
-#endif //   TIGER_TBUFFER_H
+#endif /* TIGER_TBUFFER_H */

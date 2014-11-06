@@ -21,14 +21,10 @@ enum tcErr_ {
   CERR_FOPEN_WRITE
 };
 typedef enum tcErr_ tcErr;
+tgOpt const *options_;
 
 #define CERROR(e,...) tcerr(e, __VA_ARGS__)
 #define CASSERT(b,e,...) if (!(b)) tcerr(e, __VA_ARGS__)
-
-/*******************************************************************************
- * Forward Declarations
- ******************************************************************************/
-static tgOpt options[];
 
 /*******************************************************************************
  * Global Properties
@@ -95,8 +91,9 @@ static void writeCode(tgState* T, char const* path, char const* opath) {
  * Option Callbacks
  ******************************************************************************/
 static void print_help(int *argc, char const* argv[]) {
+  (void)argc; (void)argv;
   print_usage();
-  tgOpt_fprint(stdout, options);
+  tgOpt_fprint(stdout, options_);
   printf(
     "For bug reporting instructions, please see:\n"
     "<http://bugs.libtiger.org/>\n"
@@ -131,6 +128,7 @@ static tgOpt options[] = {
  ******************************************************************************/
 int main(int argc, char const* argv[]) {
   int filesIdx = 0;
+  options_ = options;
   arg0 = argv[0];
 
   filesIdx = tgOpt_parse(argc, argv, options);

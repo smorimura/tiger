@@ -18,27 +18,27 @@ enum tgByteCode_ {
 /*******************************************************************************
  * name          | args  | Technical Description   | Side Effect               *
  ******************************************************************************/
-  // Memory Manipulation
+  /* Memory Manipulation */
   TB_PUSH,     /*| A     | OP_MOVE Rtop S(A)       | N/A*/
   TB_PUSHK,    /*| A     | OP_MOVE Rtop K(A)       | N/A*/
   TB_PUSHR,    /*| A     | OP_MOVE Rtop &S(A)      | N/A*/
 
-  // Arithmetic Operations
+  /* Arithmetic Operations */
   TB_DIV,      /*|       | OP_ADD  Rtop Rtop Rtop-1| N/A*/
   TB_ADD,TB_MUL,TB_SUB,TB_ASSIGN,
 
-  // Relational Operations
+  /* Relational Operations */
   TB_EQ,TB_LT,TB_LE,TB_GT,TB_GE,
 
-  // Jumps
+  /* Jumps */
   TB_JMP,TB_JIT,TB_JIF,TB_RJMP,
 
-  // Calls
+  /* Calls */
   TB_CALL,
 
-  // Reserved for extended operations
+  /* Reserved for extended operations */
   TB_RESERVED = 0xFF
 };
 typedef enum tgByteCode_ tgByteCode;
 
-#endif // TIGER_TOPCODE_H
+#endif /* TIGER_TOPCODE_H */

@@ -8,29 +8,31 @@
 #include <stdio.h>
 #include <string.h>
 
-int tgBuffer_readFile(tgBuffer* b) {
+int tgBuffer_readFile(struct tgBuffer_* b) {
   if (feof((FILE*)b->data)) return 0;
 
-  // Copy unread portion to start of buffer
+  /* Copy unread portion to start of buffer */
   memcpy(b->begin, b->curr, b->end - b->curr);
 
-  // Read in file contents, and adjust the vector representation
-  int bytes = fread(b->begin, sizeof(char), TIGER_FSBLOCK, (FILE*)b->data);
-  b->curr = b->begin;
-  b->end = b->begin + bytes;
+  /* Read in file contents, and adjust the vector representation */
+  {
+    int bytes = fread(b->begin, sizeof(char), TIGER_FSBLOCK, (FILE*)b->data);
+    b->curr = b->begin;
+    b->end = b->begin + bytes;
 
-  return bytes;
+    return bytes;
+  }
 }
 
-int tgBuffer_readLiteral(tgBuffer* b) {
+int tgBuffer_readLiteral(struct tgBuffer_* b) {
   ++b->end;
   return (*b->curr == '\0') ? 0 : 1;
 }
 
-tgBuffer* tgBuffer_allocFile(tgState* T, const char* path) {
+struct tgBuffer_* tgBuffer_allocFile(struct tgState_* T, const char* path) {
   FILE* file = fopen(path, "rw");
   if (file) {
-    tgBuffer *b = tgAlloc(sizeof(tgBuffer));
+    struct tgBuffer_ *b = tgAlloc(sizeof(struct tgBuffer_));
     b->begin = tgAlloc(sizeof(char) * TIGER_FSBLOCK);
     b->curr = b->begin - 1;
     b->end = b->begin;
@@ -41,8 +43,8 @@ tgBuffer* tgBuffer_allocFile(tgState* T, const char* path) {
   return NULL;
 }
 
-tgBuffer* tgBuffer_allocLiteral(tgState* T, char const* str) {
-  tgBuffer *b = tgAlloc(sizeof(tgBuffer));
+struct tgBuffer_* tgBuffer_allocLiteral(struct tgState_* T, char const* str) {
+  struct tgBuffer_ *b = tgAlloc(sizeof(struct tgBuffer_));
   b->begin = (char*)str;
   b->curr = b->begin - 1;
   b->end = b->begin;
@@ -50,18 +52,18 @@ tgBuffer* tgBuffer_allocLiteral(tgState* T, char const* str) {
   return b;
 }
 
-void tgBuffer_freeFile(tgState* T, tgBuffer* b) {
+void tgBuffer_freeFile(struct tgState_* T, struct tgBuffer_* b) {
   fclose((FILE*)b->data);
   tgFree(b->begin);
   tgFree(b);
 }
 
-void tgBuffer_freeLiteral(tgState* T, tgBuffer* b) {
+void tgBuffer_freeLiteral(struct tgState_* T, struct tgBuffer_* b) {
   tgFree(b);
 }
 
-char tgBuffer_next(tgBuffer* b) {
-  // Adjust buffer information
+char tgBuffer_next(struct tgBuffer_* b) {
+  /* Adjust buffer information */
   if (++b->curr == b->end) {
     if (b->read(b) == 0) {
       --b->curr;
@@ -69,6 +71,6 @@ char tgBuffer_next(tgBuffer* b) {
     }
   }
 
-  // Return the current value
+  /* Return the current value */
   return *b->curr;
 }

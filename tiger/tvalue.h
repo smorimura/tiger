@@ -20,4 +20,4 @@ struct tgValue_ {
 };
 typedef struct tgValue_ tgValue;
 
-#endif // TIGER_TVALUE_H
+#endif /* TIGER_TVALUE_H */

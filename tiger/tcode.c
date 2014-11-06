@@ -9,7 +9,7 @@
 #include <string.h> /* strcmp */
 #include <assert.h>
 
-// Static
+/* Static */
 static void tgKTab_grow(tgKTab* t) {
   size_t curr = t->end - t->begin;
   size_t next = curr * 2 + 1;
@@ -43,7 +43,7 @@ static size_t tgKTab_getInt(tgKTab* t, tgInteger i) {
   tgKTabValue **bucket = &t->map[0];
   tgKTabValue *curr = *bucket;
 
-  // See if it already exists
+  /* See if it already exists */
   while (curr) {
     tgKData *data = &t->begin[curr->offset];
     if (data->type == TGK_INTEGER && data->data.integer == i) {
@@ -52,30 +52,30 @@ static size_t tgKTab_getInt(tgKTab* t, tgInteger i) {
     curr= curr->next;
   }
 
-  // Create a value
-  tgKData *data = malloc(sizeof(tgKData));
-  data->type = TGK_INTEGER;
-  data->data.integer = i;
-  tgKTab_push(t, data);
+  /* Create a value */
+  {
+    tgKData *data;
+    tgKTabValue *value;
+    data = malloc(sizeof(tgKData));
+    data->type = TGK_INTEGER;
+    data->data.integer = i;
+    tgKTab_push(t, data);
 
-  // Create an entry
-  tgKTabValue *value = malloc(sizeof(tgKTabValue));
-  value->offset = ((t->curr - 1) - t->begin);
-  value->next = *bucket;
-  *bucket = value;
+    /* Create an entry */
+    value = malloc(sizeof(tgKTabValue));
+    value->offset = ((t->curr - 1) - t->begin);
+    value->next = *bucket;
+    *bucket = value;
 
-  // Check value
-  tgKData * check = &t->begin[value->offset];
-  assert(check->data.integer == i);
-
-  return value->offset;
+    return value->offset;
+  }
 }
 
 static size_t tgKTab_getReal(tgKTab* t, tgReal r) {
   tgKTabValue **bucket = &t->map[0];
   tgKTabValue *curr = *bucket;
 
-  // See if it already exists
+  /* See if it already exists */
   while (curr) {
     tgKData *data = &t->begin[curr->offset];
     if (data->type == TGK_REAL && data->data.real == r) {
@@ -84,26 +84,28 @@ static size_t tgKTab_getReal(tgKTab* t, tgReal r) {
     curr= curr->next;
   }
 
-  // Create a value
-  tgKData *data = malloc(sizeof(tgKData));
-  data->type = TGK_REAL;
-  data->data.real = r;
-  tgKTab_push(t, data);
+  /* Create a value */
+  {
+    tgKData *data;
+    tgKTabValue *value;
 
-  // Create an entry
-  tgKTabValue *value = malloc(sizeof(tgKTabValue));
-  value->offset = ((t->curr - 1) - t->begin);
-  value->next = *bucket;
-  *bucket = value;
+    data = malloc(sizeof(tgKData));
+    data->type = TGK_REAL;
+    data->data.real = r;
+    tgKTab_push(t, data);
 
-  // Check value
-  tgKData * check = &t->begin[value->offset];
-  assert(check->data.real == r);
+    /* Create an entry */
+    value = malloc(sizeof(tgKTabValue));
+    value->offset = ((t->curr - 1) - t->begin);
+    value->next = *bucket;
+    *bucket = value;
 
-  return value->offset;
+    return value->offset;
+  }
 }
 
 static size_t hashstr(tgString s) {
+  (void)s;
   return 0;
 }
 
@@ -111,7 +113,7 @@ static size_t tgKTab_getStr(tgKTab* t, tgString s) {
   tgKTabValue **bucket = &t->map[hashstr(s) % t->size];
   tgKTabValue *curr = *bucket;
 
-  // See if it already exists
+  /* See if it already exists */
   while (curr) {
     tgKData *data = &t->begin[curr->offset];
     if (data->type == TGK_STRING && strcmp(data->data.string, s) == 0) {
@@ -120,30 +122,31 @@ static size_t tgKTab_getStr(tgKTab* t, tgString s) {
     curr= curr->next;
   }
 
-  // Create a value
-  tgKData *data = malloc(sizeof(tgKData));
-  data->type = TGK_STRING;
-  data->data.string = s;
-  tgKTab_push(t, data);
+  /* Create a value */
+  {
+    tgKData *data;
+    tgKTabValue *value;
 
-  // Create an entry
-  tgKTabValue *value = malloc(sizeof(tgKTabValue));
-  value->offset = ((t->curr - 1) - t->begin);
-  value->next = *bucket;
-  *bucket = value;
+    data = malloc(sizeof(tgKData));
+    data->type = TGK_STRING;
+    data->data.string = s;
+    tgKTab_push(t, data);
 
-  // Check value
-  tgKData * check = &t->begin[value->offset];
-  assert(check->data.string == s);
+    /* Create an entry */
+    value = malloc(sizeof(tgKTabValue));
+    value->offset = ((t->curr - 1) - t->begin);
+    value->next = *bucket;
+    *bucket = value;
 
-  return value->offset;
+    return value->offset;
+  }
 }
 
 static size_t tgSTab_get(tgSTab* t, size_t off) {
   tgSTabValue **bucket = &t->map[off % t->size];
   tgSTabValue *curr = *bucket;
 
-  // See if it already exists
+  /* See if it already exists */
   while (curr) {
     tgSData *data = &t->begin[curr->offset];
     if (data->offset == off) {
@@ -152,21 +155,26 @@ static size_t tgSTab_get(tgSTab* t, size_t off) {
     curr= curr->next;
   }
 
-  // Create a value
-  tgSData *data = malloc(sizeof(tgSData));
-  data->offset = off;
-  tgSTab_push(t, data);
+  /* Create a value */
+  {
+    tgSData *data;
+    tgSTabValue *value;
 
-  // Create an entry
-  tgSTabValue *value = malloc(sizeof(tgSTabValue));
-  value->offset = (t->curr - t->begin) - 1;
-  value->next = *bucket;
-  *bucket = value;
+    data = malloc(sizeof(tgSData));
+    data->offset = off;
+    tgSTab_push(t, data);
 
-  return value->offset;
+    /* Create an entry */
+    value = malloc(sizeof(tgSTabValue));
+    value->offset = (t->curr - t->begin) - 1;
+    value->next = *bucket;
+    *bucket = value;
+
+    return value->offset;
+  }
 }
 
-// Allocate tgCode
+/* Allocate tgCode */
 static void tgKTab_init(tgKTab* t) {
   int i = 0;
   t->begin = malloc(sizeof(tgKData) * 5);
@@ -187,8 +195,8 @@ static void tgSTab_init(tgSTab* t) {
   t->size = 5;
 }
 
-tgCode* tgCode_alloc(tgState* T) {
-  tgCode *c = tgAlloc(sizeof(tgCode));
+struct tgCode_* tgCode_alloc(struct tgState_* T) {
+  struct tgCode_*c = tgAlloc(sizeof(tgCode));
   tgKTab_init(&c->k);
   tgSTab_init(&c->s);
   c->begin = malloc(sizeof(tgRaw));
@@ -197,15 +205,13 @@ tgCode* tgCode_alloc(tgState* T) {
   return c;
 }
 
-void tgCode_free(tgState* T, tgCode* c) {
-  //tgKTab_dinit(&c->k);
-  //tgSTab_dinit(&c->s);
+void tgCode_free(struct tgState_* T, struct tgCode_* c) {
   free(c->begin);
   tgFree(c);
 }
 
-// Write constants
-size_t tgCode_defInt(tgCode* c, tgInteger kint) {
+/* Write constants */
+size_t tgCode_defInt(struct tgCode_* c, tgInteger kint) {
   size_t off = tgKTab_getInt(&c->k, kint);
   return off;
 }
@@ -222,8 +228,7 @@ size_t tgCode_defStr(tgCode* c, tgString kstr) {
 
 size_t tgCode_defSym(tgCode* c, tgString s) {
   size_t soff = tgCode_defStr(c, s);
-  // May not need this symbol table stuff.
-  size_t off = tgSTab_get(&c->s, soff);
+  tgSTab_get(&c->s, soff);
   return soff;
 }
 
@@ -252,12 +257,6 @@ static void tgCode_push(tgCode *c, tgRaw b) {
   *(c->curr++) = b;
 }
 
-static void tgCode_pushn(tgCode *c, tgRaw *b, size_t n) {
-  while (n-- != 0) {
-    tgCode_push(c, *(b++));
-  }
-}
-
 void tgCode_write(tgCode* c, tgByteCode OP) {
   tgCode_push(c, OP);
 }
@@ -277,7 +276,7 @@ void tgCode_writeABC(tgCode* c, tgByteCode OP, size_t A, size_t B, size_t C) {
   tgCode_push(c, C);
 }
 
-// Output to file
+/* Output to file */
 #define BC(b) case b: fprintf(out, "%s", #b); break;
 static tgByteCode tgCode_fprintOp(FILE* out, tgByteCode b) {
   switch (b) {
@@ -306,12 +305,6 @@ static tgByteCode tgCode_fprintOp(FILE* out, tgByteCode b) {
 }
 #undef BC
 
-static void tgCode_fprintS(FILE* out, tgCode* c, size_t off) {
-  tgSData *data = &c->s.begin[off];
-  tgKData *str  = &c->k.begin[data->offset];
-  fprintf(out, "${%s}", str->data.string);
-}
-
 static void tgCode_fprintK(FILE* out, tgCode* c, size_t off) {
   tgKData *data = &c->k.begin[off];
   switch (data->type) {
@@ -324,11 +317,13 @@ static void tgCode_fprintK(FILE* out, tgCode* c, size_t off) {
     case TGK_STRING:
       fprintf(out, "\"%s\"", data->data.string);
       break;
+    default:
+      break;
   }
 }
 
 void tgCode_fprint(FILE* out, tgCode* c) {
-  // Print Constant Table
+  /* Print Constant Table */
   fprintf(out, "; Begin Constants\n");
   {
     tgKData *curr = c->k.begin;
@@ -352,7 +347,7 @@ void tgCode_fprint(FILE* out, tgCode* c) {
   }
   fprintf(out, "; End Constants\n\n");
 
-  // Print Symbol Table
+  /* Print Symbol Table */
   /*
   fprintf(out, "; Begin Symbols\n");
   {
@@ -366,7 +361,7 @@ void tgCode_fprint(FILE* out, tgCode* c) {
   fprintf(out, "; End Symbols\n\n");
   */
 
-  // Print Bytecode
+  /* Print Bytecode */
   fprintf(out, "; Begin Bytecode\n");
   {
     tgRaw * curr = c->begin;
@@ -392,6 +387,8 @@ void tgCode_fprint(FILE* out, tgCode* c) {
           fprintf(out, "    ");
           fprintf(out, "%d", *++curr);
           break;
+        default:
+          break;
       }
       fprintf(out, "\n");
       ++curr;
@@ -400,7 +397,7 @@ void tgCode_fprint(FILE* out, tgCode* c) {
   fprintf(out, "; End Bytecode\n");
 }
 
-static tgKDataType tgCode_fprintbK(FILE* out, tgKData *curr) {
+static void tgCode_fprintbK(FILE* out, tgKData *curr) {
   fputc(curr->type, out);
   switch (curr->type) {
     case TGK_INTEGER:
@@ -415,11 +412,13 @@ static tgKDataType tgCode_fprintbK(FILE* out, tgKData *curr) {
       fputc(0, out);
     }
       break;
+    default:
+      break;
   }
 }
 
 void tgCode_fprintb(FILE* out, tgCode* c) {
-  // Print constants
+  /* Print constants */
   {
     tgKData *curr = c->k.begin;
     while (curr != c->k.curr) {
@@ -428,10 +427,10 @@ void tgCode_fprintb(FILE* out, tgCode* c) {
     }
   }
 
-  // Print Bytecode
+  /* Print Bytecode */
   {
-    fputc(0xFF, out);
     tgRaw *curr = c->begin;
+    fputc(0xFF, out);
     while (curr != c->curr) {
       fputc(*curr, out);
       ++curr;

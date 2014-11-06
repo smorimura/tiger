@@ -1,5 +1,5 @@
 ################################################################################
-# Project: NERV Cross-Platform CMake Build System
+# Project: TigerScript
 # Legal  : Copyright Trent Reed 2014, All rights reserved.
 # About  : A script for add_diff_test which will run a command and diff output.
 ################################################################################

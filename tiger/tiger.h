@@ -7,4 +7,4 @@
 
 #include <tiger/tstate.h>
 
-#endif // TIGER_TIGER_H
+#endif /* TIGER_TIGER_H */
