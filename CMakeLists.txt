@@ -18,11 +18,12 @@ project(tiger C)
 set(TIGER_VERSION_MAJOR 0)
 set(TIGER_VERSION_MINOR 0)
 set(TIGER_VERSION_PATCH 2)
+set(TIGER_VERSION "${TIGER_VERSION_MAJOR}.${TIGER_VERSION_MINOR}${TIGER_VERSION_PATCH}")
 include("${CMAKE_SOURCE_DIR}/cmake/FullWarnings.cmake")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 ################################################################################
-# Options
+# Project Options
 ################################################################################
 option(TIGER_PROFILING "Whether or not debug mode will be profiled." OFF)
 option(TIGER_TESTING "Whether or not Tiger should compile test binaries." OFF)
@@ -72,7 +73,7 @@ if(TIGER_PROFILING)
 endif()
 
 ################################################################################
-# Testing
+# Testing Configuration
 ################################################################################
 if(TIGER_TESTING)
   enable_testing()
@@ -80,5 +81,21 @@ if(TIGER_TESTING)
   add_subdirectory(tests)
 endif()
 
-# Configure Doxyfile for Nightlies
+################################################################################
+# Doxygen Configuration
+################################################################################
 configure_file(${CMAKE_SOURCE_DIR}/docs/Doxyfile.in ${CMAKE_BINARY_DIR}/Doxyfile @ONLY)
+
+################################################################################
+# Packaging Configuration
+################################################################################
+set(CPACK_PACKAGE_NAME "Tiger")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "An ANSI-C scripting language research project.")
+set(CPACK_PACKAGE_VENDOR "Trent Reed")
+set(CPACK_PACKAGE_VERSION_MAJOR "${TIGER_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${TIGER_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${TIGER_VERSION_PATCH}")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "tiger-${TIGER_VERSION}")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "tiger")
+include (CPack)
