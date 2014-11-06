@@ -89,25 +89,25 @@ struct tgCode_ {
 typedef struct tgCode_ tgCode;
 
 /* Allocate tgCode */
-tgCode* tgCode_alloc(struct tgState_* T);
-void tgCode_free(struct tgState_* T, struct tgCode_* c);
+tgCode* tgCode_alloc(tgState* T);
+void tgCode_free(tgState* T, tgCode* c);
 
 /* Write constants */
-size_t tgCode_defInt(struct tgCode_* c, tgInteger kint);
-size_t tgCode_defReal(struct tgCode_* c, tgReal kreal);
-size_t tgCode_defStr(struct tgCode_* c, tgString kstr);
-size_t tgCode_defSym(struct tgCode_* c, tgString s);
+size_t tgCode_defInt(tgCode* c, tgInteger kint);
+size_t tgCode_defReal(tgCode* c, tgReal kreal);
+size_t tgCode_defStr(tgCode* c, tgString kstr);
+size_t tgCode_defSym(tgCode* c, tgString s);
 
 /* Get constants */
-tgInteger tgCode_getInt(struct tgCode_* c, size_t idx);
-tgReal tgCode_getReal(struct tgCode_* c, size_t idx);
-tgString tgCode_getStr(struct tgCode_* c, size_t idx);
+tgInteger tgCode_getInt(tgCode* c, size_t idx);
+tgReal tgCode_getReal(tgCode* c, size_t idx);
+tgString tgCode_getStr(tgCode* c, size_t idx);
 
 /* Write bytecode */
-void tgCode_write(struct tgCode_* c, tgByteCode OP);
-void tgCode_writeA(struct tgCode_* c, tgByteCode OP, size_t A);
-void tgCode_writeAB(struct tgCode_* c, tgByteCode OP, size_t A, size_t B);
-void tgCode_writeABC(struct tgCode_* c, tgByteCode OP, size_t A, size_t B, size_t C);
+void tgCode_write(tgCode* c, tgByteCode OP);
+void tgCode_writeA(tgCode* c, tgByteCode OP, size_t A);
+void tgCode_writeAB(tgCode* c, tgByteCode OP, size_t A, size_t B);
+void tgCode_writeABC(tgCode* c, tgByteCode OP, size_t A, size_t B, size_t C);
 
 /* Bytecode Operations */
 #define tgCode_move(c,s)      tgCode_writeA(c,TB_MOVE,s)
@@ -119,7 +119,7 @@ void tgCode_writeABC(struct tgCode_* c, tgByteCode OP, size_t A, size_t B, size_
 #define tgCode_rjmp(c)        tgCode_writeA(c,TB_RJMP,0xFF)
 
 /* Output to file */
-void tgCode_fprint(FILE* out, struct tgCode_* c);
-void tgCode_fprintb(FILE* out, struct tgCode_* c);
+void tgCode_fprint(FILE* out, tgCode* c);
+void tgCode_fprintb(FILE* out, tgCode* c);
 
 #endif /* TIGER_TCODEGEN_H */

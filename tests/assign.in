@@ -1,2 +1,2 @@
-variable = 100.50;
-variable;
+variable := 100;
+sayInt(variable);

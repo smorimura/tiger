@@ -102,7 +102,7 @@ static size_t tgParser_expr(tgParser* p, size_t lhp) {
   {
     tgTag  nx, op = tgTag(p);
     size_t pn, pr = tgParser_identPrec(op);
-    while (op != TG_ENDSTMT && pr > lhp) {
+    while (op != TG_ENDSTMT && op != TG_RPARENS && pr > lhp) {
       tgLexer_parse(p);
       nx = tgTagN(p,1);
       pn = tgParser_identPrec(nx);

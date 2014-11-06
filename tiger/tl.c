@@ -52,9 +52,15 @@ int say(tgState* T) {
   return 0;
 }
 
-int printInt(tgState* T) {
+int sayInt(tgState* T) {
   tgInteger i = tgState_pop(T)->data.integer;
   printf("%d", i);
+  return 0;
+}
+
+int sayNewline(tgState* T) {
+  (void)T;
+  printf("\n");
   return 0;
 }
 
@@ -105,17 +111,12 @@ int main(int argc, char const* argv[]) {
   tgState_addCFunc(T, "help", &help);
   tgState_addCFunc(T, "quit", &quit);
   tgState_addCFunc(T, "say", &say);
-  tgState_addCFunc(T, "printInt", &printInt);
+  tgState_addCFunc(T, "sayInt", &sayInt);
+  tgState_addCFunc(T, "sayNewline", &sayNewline);
 
   if (file) {
     tgState_execFile(T, file);
   }
-  /*
-  while (!feof(file)) {
-    printf("> ");
-    tgState_exec(T, io);
-  }
-  */
 
   // Clean up TigerScript
   tgState_free(T);

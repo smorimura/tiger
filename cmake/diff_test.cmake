@@ -20,8 +20,7 @@ endif()
 
 # Run the command
 execute_process(
-  COMMAND ${command} ${input}
-  OUTPUT_FILE ${output}
+  COMMAND ${command} -f ${input} > ${output}
   RESULT_VARIABLE run_result
 )
 

@@ -31,7 +31,7 @@ option(TIGER_TESTING "Whether or not Tiger should compile test binaries." OFF)
 ################################################################################
 # libtiger
 ################################################################################
-add_library(tiger
+add_library(tgr
   tiger/topt.c
   tiger/talloc.c
   tiger/tbuffer.c
@@ -46,21 +46,21 @@ add_library(tiger
 # tc - TigerScript Compiler
 ################################################################################
 add_executable(tc tiger/tc.c)
-target_link_libraries(tc tiger)
+target_link_libraries(tc tgr)
 install(TARGETS tc DESTINATION bin)
 
 ################################################################################
 # tl - TigerScript Command-Line Interpreter
 ################################################################################
 add_executable(tl tiger/tl.c)
-target_link_libraries(tl tiger)
+target_link_libraries(tl tgr)
 install(TARGETS tl DESTINATION bin)
 
 ################################################################################
 # td - TigerScript Disassembler
 ################################################################################
 add_executable(td tiger/td.c)
-target_link_libraries(td tiger)
+target_link_libraries(td tgr)
 install(TARGETS td DESTINATION bin)
 
 ################################################################################

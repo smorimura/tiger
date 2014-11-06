@@ -5,11 +5,11 @@
 #ifndef   TIGER_FWDTIGER_H
 #define   TIGER_FWDTIGER_H
 
-struct tgCode_;
-struct tgLexer_;
-struct tgBuffer_;
-struct tgState_;
-struct tgEnv_;
-struct tgValue_;
+typedef struct tgCode_ tgCode;
+typedef struct tgLexer_ tgLexer;
+typedef struct tgBuffer_ tgBuffer;
+typedef struct tgState_ tgState;
+typedef struct tgEnv_ tgEnv;
+typedef struct tgValue_ tgValue;
 
-#endif
+#endif /* TIGER_FWDTIGER_H */

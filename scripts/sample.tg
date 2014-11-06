@@ -14,12 +14,12 @@ else
 // Sing a little song!
 bottles := 99;
 while (bottles > 0) {
-  printInt(bottles);
+  sayInt(bottles);
   say(" bottles of beer on the wall,");
-  printInt(bottles);
+  sayInt(bottles);
   say(" bottles of beer.");
   bottles = bottles - 1;
   say("Take one down, pass it around,");
-  printInt(bottles);
+  sayInt(bottles);
   say(" bottles of beer on the wall.");
 }

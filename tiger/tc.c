@@ -32,6 +32,7 @@ tgOpt const *options_;
 static char const* arg0 = NULL;
 static char const* in   = NULL;
 static char const* out  = NULL;
+static int pnonterm     = 0;
 
 /*******************************************************************************
  * Private Functions
@@ -109,6 +110,11 @@ static void set_output(int *argc, char const* argv[]) {
   out = argv[++*argc];
 }
 
+static void print_nonterm(int *argc, char const* argv[]) {
+  (void)argc; (void)argv;
+  pnonterm = 1;
+}
+
 static void err_invalid(int *argc, char const* argv[]) {
   printf("%s: Unrecognized Option: '%s'\n", arg0, argv[*argc]);
 }
@@ -117,21 +123,21 @@ static void err_invalid(int *argc, char const* argv[]) {
  * Options Definitions
  ******************************************************************************/
 static tgOpt options[] = {
-  { 'h', "help",    &print_help,  "Displays this help information." },
-  { 'c', "compile", &set_compile, "Specifies one particular compile file." },
-  { 'o', "output",  &set_output,  "Specifies on particular output file. (Only works with -c)" },
-  { 0, NULL, &err_invalid, NULL }
+  { 'h',          "help",    &print_help, "Displays this help information." },
+  { 'c',       "compile",   &set_compile, "Specifies one particular compile file." },
+  { 'o',        "output",    &set_output, "Specifies on particular output file. (Only works with -c)" },
+  { 't', "print-nonterm", &print_nonterm, "Prints the nonterminal symbols as they are read in from a file." },
+  {  0 ,            NULL,   &err_invalid, NULL }
 };
 
 /*******************************************************************************
  * Main
  ******************************************************************************/
 int main(int argc, char const* argv[]) {
-  int filesIdx = 0;
   options_ = options;
   arg0 = argv[0];
 
-  filesIdx = tgOpt_parse(argc, argv, options);
+  int filesIdx = tgOpt_parse(argc, argv, options);
   tgState *T = tgState_create(&tgMalloc, NULL);
 
   // Check for specific file handling.

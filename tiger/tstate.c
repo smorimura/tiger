@@ -85,7 +85,9 @@ int tgState_addCFunc(struct tgState_* T, char const* fname, tgCallback func) {
 
 void tgState_execFile(struct tgState_* T, char const* path) {
   tgCode *c = tgState_compileFile(T, path);
-  tgState_execCode(T, c);
+  if (c) {
+    tgState_execCode(T, c);
+  }
 }
 
 void tgState_execLiteral(struct tgState_* T, char const* str) {
