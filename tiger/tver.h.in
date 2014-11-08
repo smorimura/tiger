@@ -2,10 +2,11 @@
  * TigerScript - All content 2014 Trent Reed, all rights reserved.
  ******************************************************************************/
 
-#ifndef   TIGER_TIGER_H
-#define   TIGER_TIGER_H
+#ifndef   TIGER_TVERSION_H
+#define   TIGER_TVERSION_H
 
-#include <tiger/tver.h>
-#include <tiger/tstate.h>
+#define tgVersionMajor @TIGER_VERSION_MAJOR@
+#define tgVersionMinor @TIGER_VERSION_MINOR@
+#define tgVersionPatch @TIGER_VERSION_PATCH@
 
-#endif /* TIGER_TIGER_H */
+#endif /* TIGER_TVERSION_H */

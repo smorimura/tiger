@@ -19,9 +19,12 @@ set(TIGER_VERSION_MAJOR 0)
 set(TIGER_VERSION_MINOR 0)
 set(TIGER_VERSION_PATCH 2)
 set(TIGER_VERSION "${TIGER_VERSION_MAJOR}.${TIGER_VERSION_MINOR}${TIGER_VERSION_PATCH}")
-include("${CMAKE_SOURCE_DIR}/cmake/FullWarnings.cmake")
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include("${CMAKE_SOURCE_DIR}/cmake/share/FullWarnings.cmake")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+add_subdirectory(topt)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/topt)
 
 ################################################################################
 # Project Options
@@ -32,8 +35,9 @@ option(TIGER_TESTING "Whether or not Tiger should compile test binaries." OFF)
 ################################################################################
 # libtiger
 ################################################################################
+configure_file(${CMAKE_SOURCE_DIR}/tiger/tver.h.in ${CMAKE_BINARY_DIR}/tiger/tver.h @ONLY)
 add_library(tgr
-  tiger/topt.c tiger/topt.h
+  tiger/tver.h
   tiger/talloc.c tiger/talloc.h
   tiger/tbuffer.c tiger/tbuffer.h
   tiger/tcode.c tiger/tcode.h
@@ -49,25 +53,9 @@ set_property( TARGET tgr PROPERTY FOLDER "tiger" )
 # tc - TigerScript Compiler
 ################################################################################
 add_executable(tc tiger/tc.c)
-target_link_libraries(tc tgr)
+target_link_libraries(tc tgr topt)
 install(TARGETS tc DESTINATION bin)
 set_property( TARGET tc PROPERTY FOLDER "tiger" )
-
-################################################################################
-# tl - TigerScript Command-Line Interpreter
-################################################################################
-add_executable(tl tiger/tl.c)
-target_link_libraries(tl tgr)
-install(TARGETS tl DESTINATION bin)
-set_property( TARGET tl PROPERTY FOLDER "tiger" )
-
-################################################################################
-# td - TigerScript Disassembler
-################################################################################
-add_executable(td tiger/td.c)
-target_link_libraries(td tgr)
-install(TARGETS td DESTINATION bin)
-set_property( TARGET td PROPERTY FOLDER "tiger" )
 
 ################################################################################
 # Profiling Flags and Definitions

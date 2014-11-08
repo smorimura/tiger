@@ -3,7 +3,7 @@
  ******************************************************************************/
 
 #include <tiger/tiger.h>
-#include <tiger/topt.h>
+#include <topt/topt.h>
 #include <stdarg.h> /* va_start, va_end */
 #include <stdlib.h> /* exit */
 

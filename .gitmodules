@@ -1,0 +1,6 @@
+[submodule "cmake/share"]
+	path = cmake/share
+	url = https://github.com/TReed0803/cmake-share
+[submodule "topt"]
+	path = topt
+	url = git@github.com:TReed0803/topt.git

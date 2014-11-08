@@ -9,7 +9,7 @@
 #include <stdlib.h> /* exit */
 #include <stdarg.h> /* va_start, va_end */
 #include <tiger/tiger.h> /* tgState */
-#include <tiger/topt.h> /* tgOpt */
+#include <topt/topt.h> /* tgOpt */
 
 /*******************************************************************************
  * Error Codes
@@ -21,38 +21,17 @@ enum tcErr_ {
   CERR_FOPEN_WRITE
 };
 typedef enum tcErr_ tcErr;
-tgOpt const *options_;
 
 #define CERROR(e,...) tcerr(e, __VA_ARGS__)
 #define CASSERT(b,e,...) if (!(b)) tcerr(e, __VA_ARGS__)
 
-/*******************************************************************************
- * Global Properties
- ******************************************************************************/
-static char const* arg0 = NULL;
-static char const* in   = NULL;
-static char const* out  = NULL;
-static int pnonterm     = 0;
-
-/*******************************************************************************
- * Private Functions
- ******************************************************************************/
 static void tcerr(tcErr e, char const* fmt, ...) {
-  printf("%s: Fatal Error: ", arg0);
+  printf("Fatal Error: ");
   va_list ap;
   va_start(ap, fmt);
   vprintf(fmt, ap);
   va_end(ap);
   exit(e);
-}
-
-static void print_usage() {
-  printf("Usage: %s [OPTION]... [FILE]...\n", arg0);
-}
-
-static void print_usageTry() {
-  print_usage();
-  printf("Try '%s --help' for more information.\n", arg0);
 }
 
 static char const* buildOPath(char const* path) {
@@ -87,74 +66,51 @@ static void writeCode(tgState* T, char const* path, char const* opath) {
   }
 }
 
-
 /*******************************************************************************
  * Option Callbacks
  ******************************************************************************/
-static void print_help(int *argc, char const* argv[]) {
-  (void)argc; (void)argv;
-  print_usage();
-  tgOpt_fprint(stdout, options_);
+static tErr print_help(tState *s) {
+  tOpt_printUsage(s, 80);
   printf(
     "For bug reporting instructions, please see:\n"
     "<http://bugs.libtiger.org/>\n"
   );
   exit(0);
+  return 0;
 }
 
-static void set_compile(int *argc, char const* argv[]) {
-  in = argv[++*argc];
+static tErr print_version(tState *s) {
+  (void)s;
+  printf("TigerScript Version %d.%d.%d\n", tgVersionMajor, tgVersionMinor, tgVersionPatch);
+  return 0;
 }
 
-static void set_output(int *argc, char const* argv[]) {
-  out = argv[++*argc];
-}
-
-static void print_nonterm(int *argc, char const* argv[]) {
-  (void)argc; (void)argv;
-  pnonterm = 1;
-}
-
-static void err_invalid(int *argc, char const* argv[]) {
-  printf("%s: Unrecognized Option: '%s'\n", arg0, argv[*argc]);
+static tErr err_invalid(tState *s) {
+  (void)s;
+  printf("%s: Unrecognized Option: '%s'\n", s->argv[0], s->argv[s->argi]);
+  return 0;
 }
 
 /*******************************************************************************
  * Options Definitions
  ******************************************************************************/
-static tgOpt options[] = {
-  { 'h',          "help",    &print_help, "Displays this help information." },
-  { 'c',       "compile",   &set_compile, "Specifies one particular compile file." },
-  { 'o',        "output",    &set_output, "Specifies on particular output file. (Only works with -c)" },
-  { 't', "print-nonterm", &print_nonterm, "Prints the nonterminal symbols as they are read in from a file." },
-  {  0 ,            NULL,   &err_invalid, NULL }
+static tOption const options[] = {
+  { 'h',    "help",    &print_help, "Displays this help information." },
+  { 'v', "version", &print_version, "Displays TigerScript version information."},
+  {  0 ,      NULL,   &err_invalid, NULL }
 };
 
 /*******************************************************************************
  * Main
  ******************************************************************************/
 int main(int argc, char const* argv[]) {
-  options_ = options;
-  arg0 = argv[0];
 
-  int filesIdx = tgOpt_parse(argc, argv, options);
+  int argi = 0;
   tgState *T = tgState_create(&tgMalloc, NULL);
-
-  // Check for specific file handling.
-  if (in) {
-    writeCode(T, in, out);
+  while (tOpt_parse(&argi, argc, argv, options)) {
+    // Not an option, assume it's a file.
+    writeCode(T, argv[argi++], NULL);
   }
-  else if (filesIdx >= argc) {
-    print_usageTry(argv);
-    CERROR(CERR_NO_INPUT, "No input files.\n");
-  }
-
-  // Compile files
-  while (filesIdx < argc) {
-    writeCode(T, argv[filesIdx], NULL);
-    ++filesIdx;
-  };
-
   tgState_free(T);
 
   return 0;
