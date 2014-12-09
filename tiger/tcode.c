@@ -5,7 +5,7 @@
 #include <tiger/tcode.h>
 #include <tiger/talloc.h>
 #include "tlex.h"
-#include <malloc.h>
+#include <stdlib.h> /* malloc */
 #include <string.h> /* strcmp */
 #include <assert.h>
 

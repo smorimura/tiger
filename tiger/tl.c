@@ -3,7 +3,7 @@
  ******************************************************************************/
 
 #include <tiger/tiger.h> /* tgState */
-#include <tiger/topt.h> /* tgOpt */
+#include <topt/topt.h> /* tgOpt */
 #include <stdio.h> /* printf */
 #include <stdlib.h> /* exit */
 #include <stdarg.h> /* va_start, va_end */
@@ -21,19 +21,8 @@ typedef enum tcErr_ tcErr;
 #define CASSERT(b,e,...) if (!(b)) tcerr(e, __VA_ARGS__)
 
 /*******************************************************************************
- * Global Properties
- ******************************************************************************/
-static tgOpt const *options_ = NULL;
-static char const* arg0 = NULL;
-static char const* file = NULL;
-
-/*******************************************************************************
  * Private Functions
  ******************************************************************************/
-static void print_usage() {
-  printf("Usage: %s [OPTION]... [FILE]...\n", arg0);
-}
-
 int help(tgState* T) {
   (void)T;
   printf("Under Construction\n");
@@ -67,32 +56,35 @@ int sayNewline(tgState* T) {
 /*******************************************************************************
  * Option Callbacks
  ******************************************************************************/
-static void print_help(int *argc, char const* argv[]) {
-  (void)argc; (void)argv;
-  print_usage();
-  tgOpt_fprint(stdout, options_);
-  printf(
-    "For bug reporting instructions, please see:\n"
-    "<http://bugs.libtiger.org/>\n"
-  );
-  exit(0);
+static int print_help(tState *s) {
+    tOpt_printUsage(s);
+    printf(
+           "For bug reporting instructions, please see:\n"
+           "<http://bugs.libtiger.org/>\n"
+           );
+    exit(0);
+    return 0;
 }
 
-static void set_file(int *argc, char const* argv[]) {
-  file = argv[++*argc];
+static int print_version(tState *s) {
+    (void)s;
+    printf("TigerScript Version %d.%d.%d\n", tgVersionMajor, tgVersionMinor, tgVersionPatch);
+    return 0;
 }
 
-static void err_invalid(int *argc, char const* argv[]) {
-  printf("%s: Unrecognized Option: '%s'\n", arg0, argv[*argc]);
+static int err_invalid(tState *s) {
+    (void)s;
+    printf("%s: Unrecognized Option: '%s'\n", s->argv[0], s->argv[s->argi]);
+    return 0;
 }
 
 /*******************************************************************************
  * Options Definitions
  ******************************************************************************/
-static tgOpt options[] = {
-  { 'h', "help", &print_help, "Displays this help information." },
-  { 'f', "file", &set_file, "Runs a TigerScript file."},
-  { 0, NULL, &err_invalid, NULL }
+static tOption const options[] = {
+    { 'h',    "help",    &print_help, "Displays this help information." },
+    { 'v', "version", &print_version, "Displays TigerScript version information."},
+    {  0 ,      NULL,   &err_invalid, NULL }
 };
 
 /*******************************************************************************
@@ -102,20 +94,23 @@ int main(int argc, char const* argv[]) {
 
   // Create and initialize TigerScript
   tgState *T = tgState_create(tgMalloc, NULL);
-  options_ = options;
-
-  // Handle command-line options
-  tgOpt_parse(argc, argv, options);
-
+  
   // Add helper functions for the end-user
   tgState_addCFunc(T, "help", &help);
   tgState_addCFunc(T, "quit", &quit);
   tgState_addCFunc(T, "say", &say);
   tgState_addCFunc(T, "sayInt", &sayInt);
   tgState_addCFunc(T, "sayNewline", &sayNewline);
-
-  if (file) {
-    tgState_execFile(T, file);
+  
+  // Handle command line arguments.
+  int argi = 0;
+  TOPT_PARSE(argi, argc, argv, options) {
+  case TERR_ARGUMENT:
+    tgState_execFile(T, argv[argi]);
+    break;
+  default:
+    printf("tl has encountered a fatal error!\n");
+    exit(1);
   }
 
   // Clean up TigerScript

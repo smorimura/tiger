@@ -24,18 +24,12 @@ typedef enum tdErr_ tdErr;
 /*******************************************************************************
  * Global Properties
  ******************************************************************************/
-static tgOpt const *options_ = NULL;
-static char const* arg0 = NULL;
 static char const* in   = NULL;
 static char const* out  = NULL;
 
 /*******************************************************************************
  * Private Functions
  ******************************************************************************/
-static void print_usage() {
-  printf("Usage: %s [OPTION]... [FILE]...\n", arg0);
-}
-
 #define SC(t) case t: fprintf(out, "%s\n", #t); break
 #define JMP(t) case t: fprintf(out, "%s %d\n", #t, fgetc(in)); break
 static void disassembleFile(FILE* in, FILE* out) {
@@ -72,7 +66,7 @@ static void disassembleFile(FILE* in, FILE* out) {
         i = -1;
         break;
     }
-    if (i == -1) break;
+    if (i == EOF) break;
     ++i;
   }
   fprintf(out, ";; End Constants Table\n\n");
@@ -113,16 +107,15 @@ static void disassemble(char const* path) {
   if (f) {
     disassembleFile(f, fout);
     fclose(f);
+    fclose(fout);
   }
 }
 
 /*******************************************************************************
  * Options Callbacks
  ******************************************************************************/
-static void print_help(int *argc, char const* argv[]) {
-  (void)argc; (void)argv;
-  print_usage();
-  tgOpt_fprint(stdout, options_);
+static int print_help(tState *T) {
+  tOpt_printHelp(T);
   printf(
     "For bug reporting instructions, please see:\n"
     "<http://bugs.libtiger.org/>\n"
@@ -130,37 +123,43 @@ static void print_help(int *argc, char const* argv[]) {
   exit(0);
 }
 
-static void set_compile(int *argc, char const* argv[]) {
-  in = argv[++*argc];
+static int set_compile(tState *T) {
+  in = T->argv[++T->argi];
+  return 0;
 }
 
-static void set_output(int *argc, char const* argv[]) {
-  out = argv[++*argc];
-}
-
-static void err_invalid(int *argc, char const* argv[]) {
-  printf("%s: Unrecognized Option: '%s'\n", arg0, argv[*argc]);
+static int set_output(tState *T) {
+  out = T->argv[++T->argi];
+  return 0;
 }
 
 /*******************************************************************************
  * Options Definitions
  ******************************************************************************/
-static tgOpt const options[] = {
+static tOption const options[] = {
   { 'h', "help",        &print_help,  "Displays this help information." },
-  { 'd', "disassemble", &set_compile, "Specifies one particular binary file to disassemble." },
-  { 'o', "output",      &set_output,  "Specifies on particular output file. (Only works with -d)" },
-  { 0, NULL, &err_invalid, NULL }
+  { 'i', "in",         &set_compile, "Specifies one particular binary file to disassemble." },
+  { 'o', "out",         &set_output,  "Specifies on particular output file. (Only works with -d)" },
+  { 0, NULL, NULL, NULL }
 };
 
 /*******************************************************************************
  * Main
  ******************************************************************************/
 int main(int argc, char const* argv[]) {
-  options_ = options;
-  tgOpt_parse(argc, argv, options);
+  
+  // Process input files
+  int argi = 0;
+  TOPT_PARSE(argi, argc, argv, options) {
+  default:
+    printf("td encountered a fatal error!\n");
+    exit(1);
+  }
 
+  // Print output files
   if (in) {
     disassemble(in);
   }
+  
   return 0;
 }

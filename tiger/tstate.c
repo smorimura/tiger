@@ -7,7 +7,7 @@
 #include <tiger/tlex.h>
 #include <tiger/tparse.h>
 #include <tiger/tbuffer.h>
-#include <malloc.h>
+#include <stdlib.h> /* malloc */
 
 /*******************************************************************************
  * tgState Private Methods
@@ -119,7 +119,8 @@ void tgState_execCode(struct tgState_* T, tgCode* c) {
         break;
       case TB_PUSHK:
       {
-        tgKData k = c->k.begin[*(curr++)];
+        int test = *(curr++);
+        tgKData k = c->k.begin[test];
         switch (k.type) {
           case TGK_INTEGER:
             tgState_pushInt(T, k.data.integer);
@@ -127,6 +128,9 @@ void tgState_execCode(struct tgState_* T, tgCode* c) {
           case TGK_STRING:
             tgState_pushStr(T, k.data.string);
             break;
+          case TGK_INVALID:
+            printf("Tiger experienced a fatal error!\n");
+            exit(1);
           default:
             break;
         }

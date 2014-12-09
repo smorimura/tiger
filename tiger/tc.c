@@ -69,23 +69,22 @@ static void writeCode(tgState* T, char const* path, char const* opath) {
 /*******************************************************************************
  * Option Callbacks
  ******************************************************************************/
-static tErr print_help(tState *s) {
-  tOpt_printUsage(s, 80);
+static int print_help(tState *s) {
+  tOpt_printUsage(s);
   printf(
     "For bug reporting instructions, please see:\n"
     "<http://bugs.libtiger.org/>\n"
   );
   exit(0);
-  return 0;
 }
 
-static tErr print_version(tState *s) {
+static int print_version(tState *s) {
   (void)s;
   printf("TigerScript Version %d.%d.%d\n", tgVersionMajor, tgVersionMinor, tgVersionPatch);
   return 0;
 }
 
-static tErr err_invalid(tState *s) {
+static int err_invalid(tState *s) {
   (void)s;
   printf("%s: Unrecognized Option: '%s'\n", s->argv[0], s->argv[s->argi]);
   return 0;
@@ -107,9 +106,14 @@ int main(int argc, char const* argv[]) {
 
   int argi = 0;
   tgState *T = tgState_create(&tgMalloc, NULL);
-  while (tOpt_parse(&argi, argc, argv, options)) {
+  TOPT_PARSE(argi, argc, argv, options) {
+  case TERR_ARGUMENT:
     // Not an option, assume it's a file.
     writeCode(T, argv[argi++], NULL);
+    break;
+  default:
+    printf("tc has encountered a fatal error!\n");
+    exit(1);
   }
   tgState_free(T);
 

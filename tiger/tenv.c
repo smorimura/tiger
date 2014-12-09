@@ -4,7 +4,7 @@
 
 #include <tiger/tenv.h>
 #include <tiger/talloc.h>
-#include <malloc.h>
+#include <stdlib.h> /* malloc */
 #include <string.h>
 
 /*******************************************************************************

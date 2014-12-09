@@ -1,5 +1,7 @@
 #!/bin/tgr
 
+say("Test");
+
 // Global Values
 value := 0;
 

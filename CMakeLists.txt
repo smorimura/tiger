@@ -58,6 +58,23 @@ install(TARGETS tc DESTINATION bin)
 set_property( TARGET tc PROPERTY FOLDER "tiger" )
 
 ################################################################################
+# tl - TigerScript Compiler
+################################################################################
+add_executable(tl tiger/tl.c)
+target_link_libraries(tl tgr topt)
+install(TARGETS tl DESTINATION bin)
+set_property( TARGET tl PROPERTY FOLDER "tiger" )
+
+
+################################################################################
+# td - TigerScript Compiler
+################################################################################
+add_executable(td tiger/td.c)
+target_link_libraries(td tgr topt)
+install(TARGETS td DESTINATION bin)
+set_property( TARGET td PROPERTY FOLDER "tiger" )
+
+################################################################################
 # Profiling Flags and Definitions
 ################################################################################
 if(TIGER_PROFILING)

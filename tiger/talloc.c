@@ -4,7 +4,7 @@
 
 #include <tiger/talloc.h>
 #include <tiger/tstate.h>
-#include <malloc.h>
+#include <stdlib.h> /* malloc */
 
 void* tgMalloc(void* ud, void* ptr, size_t req) {
   (void)ud;

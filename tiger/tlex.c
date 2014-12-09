@@ -6,7 +6,7 @@
 #include <tiger/talloc.h>
 #include <tiger/tbuffer.h>
 #include <tiger/tcode.h>
-#include <malloc.h>
+#include <stdlib.h> /* malloc */
 #include <stdarg.h>
 #include <ctype.h>
 

@@ -8,7 +8,7 @@
 #include <tiger/tcode.h>
 #include <tiger/tenv.h>
 #include <tiger/tstate.h>
-#include <malloc.h>
+#include <stdlib.h> /* malloc */
 #include <assert.h>
 
 #define tgTokenN(p,n) p->tokens[n]
@@ -35,6 +35,7 @@ static void tgParser_load(tgParser* p) {
       break;
     case TG_STRING:
       off = tgCode_defStr(p->code, tgAttrib(p).string);
+      break;
     default:
       off = 0xFF;
       break;
